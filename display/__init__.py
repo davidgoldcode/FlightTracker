@@ -27,6 +27,10 @@ from scenes.rain import RainScene
 from scenes.birthday import BirthdayScene
 from scenes.anniversary import AnniversaryScene
 from scenes.timeofday import TimeOfDayScene
+from scenes.valentines import ValentinesScene
+from scenes.halloween import HalloweenScene
+from scenes.chanukah import ChanukahScene
+from scenes.newyear import NewYearScene
 
 from rgbmatrix import graphics
 from rgbmatrix import RGBMatrix, RGBMatrixOptions
@@ -83,6 +87,10 @@ class Display(
     BirthdayScene,
     AnniversaryScene,
     TimeOfDayScene,
+    ValentinesScene,
+    HalloweenScene,
+    ChanukahScene,
+    NewYearScene,
     Animator,
 ):
     def __init__(self):

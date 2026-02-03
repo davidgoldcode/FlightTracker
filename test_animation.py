@@ -40,6 +40,10 @@ ANIMATIONS = {
     'birthday': 'scenes.birthday.BirthdayScene',
     'anniversary': 'scenes.anniversary.AnniversaryScene',
     'timeofday': 'scenes.timeofday.TimeOfDayScene',
+    'valentines': 'scenes.valentines.ValentinesScene',
+    'halloween': 'scenes.halloween.HalloweenScene',
+    'chanukah': 'scenes.chanukah.ChanukahScene',
+    'newyear': 'scenes.newyear.NewYearScene',
 }
 
 def get_scene_class(name):
