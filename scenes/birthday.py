@@ -17,7 +17,16 @@ def _load_birthday_config():
     except (ImportError, NameError):
         return {}
 
+def _is_demo_mode():
+    """Check if running in test/demo mode (no config or testing)."""
+    try:
+        from config import MY_BIRTHDAY
+        return False  # config exists, use real logic
+    except (ImportError, NameError):
+        return True  # no config, demo mode
+
 BIRTHDAYS = _load_birthday_config()
+DEMO_MODE = _is_demo_mode()
 
 # cake pixels (simple 8x7 cake with candle)
 CAKE_PIXELS = [
@@ -93,10 +102,13 @@ class BirthdayScene(object):
                 self._last_birthday_pixels = []
             return
 
-        # check if today is someone's birthday
-        name = self._check_birthday()
-        if not name:
-            return
+        # check if today is someone's birthday (or demo mode)
+        if DEMO_MODE:
+            name = "Demo"
+        else:
+            name = self._check_birthday()
+            if not name:
+                return
 
         drawn_pixels = []
 
