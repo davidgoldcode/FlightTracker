@@ -4,7 +4,7 @@ from setup import colours, frames
 from rgbmatrix import graphics
 
 
-# heart shape (8x7 pixels)
+# heart shape (8x6 pixels)
 # centered at position for visibility alongside clock/weather
 HEART_PIXELS = [
     # row 0: top bumps
@@ -17,10 +17,8 @@ HEART_PIXELS = [
     (1, 3), (2, 3), (3, 3), (4, 3), (5, 3), (6, 3),
     # row 4
     (2, 4), (3, 4), (4, 4), (5, 4),
-    # row 5
+    # row 5: bottom point (two pixels for symmetry)
     (3, 5), (4, 5),
-    # row 6: bottom point
-    (3, 6),
 ]
 
 # position on display (bottom right area, above weather graph area)
