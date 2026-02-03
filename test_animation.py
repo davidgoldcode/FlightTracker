@@ -30,6 +30,16 @@ ANIMATIONS = {
     'weather': 'scenes.weather.WeatherScene',
     'date': 'scenes.date.DateScene',
     'day': 'scenes.day.DayScene',
+    'lovemessages': 'scenes.lovemessages.LoveMessagesScene',
+    'starfield': 'scenes.starfield.StarfieldScene',
+    'oceanwaves': 'scenes.oceanwaves.OceanWavesScene',
+    'fallingsnow': 'scenes.fallingsnow.FallingSnowScene',
+    'aurora': 'scenes.aurora.AuroraScene',
+    'fireplace': 'scenes.fireplace.FireplaceScene',
+    'rain': 'scenes.rain.RainScene',
+    'birthday': 'scenes.birthday.BirthdayScene',
+    'anniversary': 'scenes.anniversary.AnniversaryScene',
+    'timeofday': 'scenes.timeofday.TimeOfDayScene',
 }
 
 def get_scene_class(name):

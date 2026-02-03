@@ -75,3 +75,20 @@ QUIET_HOURS_START = "23:00"  # 24-hour format
 QUIET_HOURS_END = "07:00"
 QUIET_MODE = "starfield"     # options: starfield, off, dim
 QUIET_BRIGHTNESS = 20        # 0-100
+
+# =============================================================================
+# CUSTOM MESSAGES
+# =============================================================================
+
+# rotating love messages shown when no flights overhead
+# leave empty or remove to use defaults
+LOVE_MESSAGES = [
+    "I love you",
+    "You're amazing",
+    "Thinking of you",
+    "Miss you",
+    "You make me happy",
+    "XOXO",
+    "Forever yours",
+    "My favorite person",
+]

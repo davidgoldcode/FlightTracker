@@ -17,6 +17,16 @@ from scenes.planedetails import PlaneDetailsScene
 from scenes.day import DayScene
 from scenes.date import DateScene
 from scenes.heartbeat import HeartbeatScene
+from scenes.lovemessages import LoveMessagesScene
+from scenes.starfield import StarfieldScene
+from scenes.oceanwaves import OceanWavesScene
+from scenes.fallingsnow import FallingSnowScene
+from scenes.aurora import AuroraScene
+from scenes.fireplace import FireplaceScene
+from scenes.rain import RainScene
+from scenes.birthday import BirthdayScene
+from scenes.anniversary import AnniversaryScene
+from scenes.timeofday import TimeOfDayScene
 
 from rgbmatrix import graphics
 from rgbmatrix import RGBMatrix, RGBMatrixOptions
@@ -63,6 +73,16 @@ class Display(
     DayScene,
     DateScene,
     HeartbeatScene,
+    LoveMessagesScene,
+    StarfieldScene,
+    OceanWavesScene,
+    FallingSnowScene,
+    AuroraScene,
+    FireplaceScene,
+    RainScene,
+    BirthdayScene,
+    AnniversaryScene,
+    TimeOfDayScene,
     Animator,
 ):
     def __init__(self):
