@@ -37,6 +37,7 @@ from scenes.easter import EasterScene
 from scenes.independence import IndependenceScene
 from scenes.thanksgiving import ThanksgivingScene
 from scenes.chinesenewyear import ChineseNewYearScene
+from scenes.planeintro import PlaneIntroScene
 
 from rgbmatrix import graphics
 from rgbmatrix import RGBMatrix, RGBMatrixOptions
@@ -75,6 +76,7 @@ except (ModuleNotFoundError, NameError, ImportError):
 
 class Display(
     WeatherScene,
+    PlaneIntroScene,
     FlightDetailsScene,
     JourneyScene,
     LoadingLEDScene if LOADING_LED_ENABLED else LoadingPulseScene,

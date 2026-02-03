@@ -50,6 +50,7 @@ ANIMATIONS = {
     'independence': 'scenes.independence.IndependenceScene',
     'thanksgiving': 'scenes.thanksgiving.ThanksgivingScene',
     'chinesenewyear': 'scenes.chinesenewyear.ChineseNewYearScene',
+    'planeintro': 'scenes.planeintro.PlaneIntroScene',
 }
 
 def get_scene_class(name):
