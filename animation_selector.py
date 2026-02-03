@@ -96,22 +96,134 @@ HTML_TEMPLATE = """
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #0d1117;
             color: #c9d1d9;
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            padding: 20px;
+            overflow: hidden;
         }
-        h1 {
-            font-size: 18px;
+
+        .header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #21262d;
+            flex-shrink: 0;
+        }
+        .header h1 {
+            font-size: 16px;
             font-weight: 500;
             color: #58a6ff;
-            margin-bottom: 20px;
+            text-align: center;
         }
-        .container {
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 16px 20px;
+            max-width: 500px;
+            margin: 0 auto;
             width: 100%;
-            max-width: 400px;
         }
+
+        /* Now playing status */
+        .current-status {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #6e7681;
+            flex-shrink: 0;
+        }
+        .status-dot.active {
+            background: #3fb950;
+            box-shadow: 0 0 6px #3fb950;
+        }
+        .status-text { flex: 1; }
+        .status-name {
+            font-weight: 500;
+            font-size: 14px;
+            color: #c9d1d9;
+        }
+        .status-label {
+            font-size: 10px;
+            color: #6e7681;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Animation list - scrollable */
+        .animation-list {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            overflow-y: auto;
+            flex: 1;
+            min-height: 0;
+        }
+        .animation-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #21262d;
+            transition: background 0.1s;
+            font-size: 14px;
+        }
+        .animation-item:last-child { border-bottom: none; }
+        .animation-item:hover { background: #21262d; }
+        .animation-item.selected {
+            background: #1f6feb30;
+            border-left: 3px solid #58a6ff;
+            padding-left: 11px;
+        }
+        .animation-item.active { background: #23863620; }
+        .item-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #30363d;
+            flex-shrink: 0;
+        }
+        .animation-item.active .item-dot { background: #3fb950; }
+        .item-name { flex: 1; }
+
+        /* Footer */
+        .footer {
+            padding: 12px 20px;
+            border-top: 1px solid #21262d;
+            flex-shrink: 0;
+            text-align: center;
+        }
+        .hint {
+            font-size: 11px;
+            color: #6e7681;
+            margin-bottom: 8px;
+        }
+        .hint kbd {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 3px;
+            padding: 1px 5px;
+            font-family: monospace;
+            font-size: 10px;
+        }
+        .led-link {
+            color: #58a6ff;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        .led-link:hover { text-decoration: underline; }
 
         /* Command palette overlay */
         .palette-overlay {
@@ -124,16 +236,15 @@ HTML_TEMPLATE = """
             background: rgba(0, 0, 0, 0.7);
             z-index: 100;
             justify-content: center;
-            padding-top: 100px;
+            padding-top: 80px;
         }
         .palette-overlay.active { display: flex; }
-
         .palette {
             background: #161b22;
             border: 1px solid #30363d;
             border-radius: 12px;
-            width: 500px;
-            max-height: 400px;
+            width: 400px;
+            max-height: 350px;
             overflow: hidden;
             box-shadow: 0 16px 32px rgba(0,0,0,0.5);
         }
@@ -142,147 +253,54 @@ HTML_TEMPLATE = """
             background: transparent;
             border: none;
             border-bottom: 1px solid #30363d;
-            padding: 16px;
-            font-size: 16px;
+            padding: 14px;
+            font-size: 14px;
             color: #c9d1d9;
             outline: none;
         }
         .palette-input::placeholder { color: #6e7681; }
         .palette-results {
-            max-height: 320px;
+            max-height: 280px;
             overflow-y: auto;
         }
         .palette-item {
-            padding: 12px 16px;
+            padding: 10px 14px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             border-left: 3px solid transparent;
+            font-size: 14px;
         }
         .palette-item:hover, .palette-item.selected {
             background: #21262d;
             border-left-color: #58a6ff;
         }
-        .palette-item.active-anim {
-            background: #1f6feb20;
-        }
+        .palette-item.active-anim { background: #1f6feb20; }
         .palette-icon {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: #30363d;
         }
         .palette-item.active-anim .palette-icon {
             background: #3fb950;
-            box-shadow: 0 0 8px #3fb950;
+            box-shadow: 0 0 6px #3fb950;
         }
         .palette-empty {
-            padding: 20px;
+            padding: 16px;
             text-align: center;
             color: #6e7681;
+            font-size: 13px;
         }
-
-        /* Main list */
-        .current-status {
-            background: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 8px;
-            padding: 12px 16px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #6e7681;
-        }
-        .status-dot.active {
-            background: #3fb950;
-            box-shadow: 0 0 8px #3fb950;
-        }
-        .status-text {
-            flex: 1;
-        }
-        .status-name {
-            font-weight: 500;
-            color: #c9d1d9;
-        }
-        .status-label {
-            font-size: 11px;
-            color: #6e7681;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .animation-list {
-            background: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .animation-item {
-            padding: 12px 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid #21262d;
-            transition: background 0.1s;
-        }
-        .animation-item:last-child { border-bottom: none; }
-        .animation-item:hover { background: #21262d; }
-        .animation-item.selected {
-            background: #1f6feb30;
-            border-left: 3px solid #58a6ff;
-            padding-left: 13px;
-        }
-        .animation-item.active {
-            background: #23863620;
-        }
-        .item-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #30363d;
-            flex-shrink: 0;
-        }
-        .animation-item.active .item-dot {
-            background: #3fb950;
-        }
-        .item-name { flex: 1; }
-
-        .hint {
-            margin-top: 16px;
-            text-align: center;
-            font-size: 12px;
-            color: #6e7681;
-        }
-        .hint kbd {
-            background: #21262d;
-            border: 1px solid #30363d;
-            border-radius: 4px;
-            padding: 2px 6px;
-            font-family: monospace;
-            font-size: 11px;
-        }
-
-        .led-link {
-            margin-top: 20px;
-            color: #58a6ff;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        .led-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
-    <h1>Animation Selector</h1>
+    <div class="header">
+        <h1>Animation Selector</h1>
+    </div>
 
-    <div class="container">
+    <div class="main">
         <div class="current-status">
             <div class="status-dot {{ 'active' if current else '' }}" id="statusDot"></div>
             <div class="status-text">
@@ -301,17 +319,16 @@ HTML_TEMPLATE = """
             </div>
             {% endfor %}
         </div>
+    </div>
 
+    <div class="footer">
         <div class="hint">
             <kbd>↑</kbd> <kbd>↓</kbd> navigate |
-            <kbd>Enter</kbd> select |
+            <kbd>Enter</kbd> watch |
             <kbd>⌘K</kbd> search |
             <kbd>Esc</kbd> stop
         </div>
-
-        <a href="http://localhost:8888" target="_blank" class="led-link">
-            Open LED Display →
-        </a>
+        <a href="/display" class="led-link">Open LED Display →</a>
     </div>
 
     <!-- Command Palette -->
