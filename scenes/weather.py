@@ -113,7 +113,7 @@ def grab_current_temperature(location, units="metric"):
     except WeatherError:
         grab_weather.cache_clear()
 
-    if units == "imperial":
+    if units == "imperial" and current_temp is not None:
         current_temp = (current_temp * (9.0 / 5.0)) + 32
 
     return current_temp
