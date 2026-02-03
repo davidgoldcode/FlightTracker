@@ -44,6 +44,12 @@ ANIMATIONS = {
     'halloween': 'scenes.halloween.HalloweenScene',
     'chanukah': 'scenes.chanukah.ChanukahScene',
     'newyear': 'scenes.newyear.NewYearScene',
+    'christmas': 'scenes.christmas.ChristmasScene',
+    'stpatricks': 'scenes.stpatricks.StPatricksScene',
+    'easter': 'scenes.easter.EasterScene',
+    'independence': 'scenes.independence.IndependenceScene',
+    'thanksgiving': 'scenes.thanksgiving.ThanksgivingScene',
+    'chinesenewyear': 'scenes.chinesenewyear.ChineseNewYearScene',
 }
 
 def get_scene_class(name):

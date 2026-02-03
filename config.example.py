@@ -58,7 +58,7 @@ HOLIDAYS = {
     "valentines": True,         # Feb 14
     "st_patricks": False,       # Mar 17
     "easter": False,            # variable
-    "july_4th": False,          # Jul 4
+    "independence_day": False,  # Jul 4
     "halloween": True,          # Oct 31
     "thanksgiving": False,      # 4th Thu Nov
     "chanukah": False,          # variable (~Dec)

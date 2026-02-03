@@ -31,6 +31,12 @@ from scenes.valentines import ValentinesScene
 from scenes.halloween import HalloweenScene
 from scenes.chanukah import ChanukahScene
 from scenes.newyear import NewYearScene
+from scenes.christmas import ChristmasScene
+from scenes.stpatricks import StPatricksScene
+from scenes.easter import EasterScene
+from scenes.independence import IndependenceScene
+from scenes.thanksgiving import ThanksgivingScene
+from scenes.chinesenewyear import ChineseNewYearScene
 
 from rgbmatrix import graphics
 from rgbmatrix import RGBMatrix, RGBMatrixOptions
@@ -91,6 +97,12 @@ class Display(
     HalloweenScene,
     ChanukahScene,
     NewYearScene,
+    ChristmasScene,
+    StPatricksScene,
+    EasterScene,
+    IndependenceScene,
+    ThanksgivingScene,
+    ChineseNewYearScene,
     Animator,
 ):
     def __init__(self):
