@@ -349,16 +349,18 @@ HTML_TEMPLATE = """
         let paletteIndex = 0;
         let filteredNames = [...animationNames];
 
-        function selectAnimation(name) {
-            fetch('/api/start/' + encodeURIComponent(name), { method: 'POST' })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
-                        updateUI(name);
-                        selectedIndex = animationNames.indexOf(name);
-                        closePalette();
-                    }
-                });
+        async function selectAnimation(name, navigateAfter = false) {
+            const response = await fetch('/api/start/' + encodeURIComponent(name), { method: 'POST' });
+            const data = await response.json();
+            if (data.success) {
+                updateUI(name);
+                selectedIndex = animationNames.indexOf(name);
+                closePalette();
+                if (navigateAfter) {
+                    window.location.href = '/display';
+                }
+            }
+            return data.success;
         }
 
         function stopAnimation() {
@@ -505,8 +507,7 @@ HTML_TEMPLATE = """
                 } else if (e.key === 'Enter') {
                     e.preventDefault();
                     // start animation and go to display
-                    selectAnimation(animationNames[selectedIndex]);
-                    window.location.href = '/display';
+                    selectAnimation(animationNames[selectedIndex], true);
                 }
             }
         });
