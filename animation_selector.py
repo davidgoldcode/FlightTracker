@@ -94,160 +94,252 @@ HTML_TEMPLATE = """
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #1a1a2e;
-            color: #eee;
+            background: #0d1117;
+            color: #c9d1d9;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             padding: 20px;
         }
         h1 {
-            text-align: center;
-            margin-bottom: 10px;
-            color: #fff;
-        }
-        .subtitle {
-            text-align: center;
-            color: #888;
-            margin-bottom: 30px;
-            font-size: 14px;
+            font-size: 18px;
+            font-weight: 500;
+            color: #58a6ff;
+            margin-bottom: 20px;
         }
         .container {
-            max-width: 800px;
-            margin: 0 auto;
+            width: 100%;
+            max-width: 400px;
         }
-        .current {
-            background: #16213e;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+
+        /* Command palette overlay */
+        .palette-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            justify-content: center;
+            padding-top: 100px;
+        }
+        .palette-overlay.active { display: flex; }
+
+        .palette {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            width: 500px;
+            max-height: 400px;
+            overflow: hidden;
+            box-shadow: 0 16px 32px rgba(0,0,0,0.5);
+        }
+        .palette-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #30363d;
+            padding: 16px;
+            font-size: 16px;
+            color: #c9d1d9;
+            outline: none;
+        }
+        .palette-input::placeholder { color: #6e7681; }
+        .palette-results {
+            max-height: 320px;
+            overflow-y: auto;
+        }
+        .palette-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 3px solid transparent;
+        }
+        .palette-item:hover, .palette-item.selected {
+            background: #21262d;
+            border-left-color: #58a6ff;
+        }
+        .palette-item.active-anim {
+            background: #1f6feb20;
+        }
+        .palette-icon {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #30363d;
+        }
+        .palette-item.active-anim .palette-icon {
+            background: #3fb950;
+            box-shadow: 0 0 8px #3fb950;
+        }
+        .palette-empty {
+            padding: 20px;
             text-align: center;
+            color: #6e7681;
         }
-        .current-label { color: #888; font-size: 12px; }
-        .current-name {
-            font-size: 24px;
-            font-weight: bold;
-            color: #0f0;
-            margin-top: 5px;
-        }
-        .current-name.none { color: #666; }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+
+        /* Main list */
+        .current-status {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
             gap: 12px;
         }
-        .animation-btn {
-            background: #16213e;
-            border: 2px solid #0f3460;
-            border-radius: 8px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: left;
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #6e7681;
         }
-        .animation-btn:hover {
-            background: #1a1a4e;
-            border-color: #e94560;
-            transform: translateY(-2px);
+        .status-dot.active {
+            background: #3fb950;
+            box-shadow: 0 0 8px #3fb950;
         }
-        .animation-btn.active {
-            background: #0f3460;
-            border-color: #0f0;
+        .status-text {
+            flex: 1;
         }
-        .animation-btn .name {
-            font-weight: bold;
-            font-size: 16px;
-            margin-bottom: 4px;
+        .status-name {
+            font-weight: 500;
+            color: #c9d1d9;
         }
-        .animation-btn .key {
-            display: inline-block;
-            background: #0f3460;
-            color: #aaa;
-            padding: 2px 6px;
-            border-radius: 4px;
+        .status-label {
             font-size: 11px;
-            font-family: monospace;
+            color: #6e7681;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .animation-btn.active .key {
-            background: #0f0;
-            color: #000;
-        }
-        .controls {
-            margin-top: 20px;
-            text-align: center;
-        }
-        .stop-btn {
-            background: #e94560;
-            border: none;
-            color: white;
-            padding: 12px 30px;
+
+        .animation-list {
+            background: #161b22;
+            border: 1px solid #30363d;
             border-radius: 8px;
+            overflow: hidden;
+        }
+        .animation-item {
+            padding: 12px 16px;
             cursor: pointer;
-            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #21262d;
+            transition: background 0.1s;
         }
-        .stop-btn:hover { background: #ff6b6b; }
-        .help {
-            margin-top: 30px;
+        .animation-item:last-child { border-bottom: none; }
+        .animation-item:hover { background: #21262d; }
+        .animation-item.selected {
+            background: #1f6feb30;
+            border-left: 3px solid #58a6ff;
+            padding-left: 13px;
+        }
+        .animation-item.active {
+            background: #23863620;
+        }
+        .item-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #30363d;
+            flex-shrink: 0;
+        }
+        .animation-item.active .item-dot {
+            background: #3fb950;
+        }
+        .item-name { flex: 1; }
+
+        .hint {
+            margin-top: 16px;
             text-align: center;
-            color: #666;
             font-size: 12px;
+            color: #6e7681;
         }
+        .hint kbd {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: monospace;
+            font-size: 11px;
+        }
+
         .led-link {
-            display: block;
-            text-align: center;
             margin-top: 20px;
-            color: #e94560;
+            color: #58a6ff;
             text-decoration: none;
+            font-size: 14px;
         }
         .led-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🎨 Animation Selector</h1>
-        <p class="subtitle">FlightTracker LED Panel Emulator</p>
+    <h1>Animation Selector</h1>
 
-        <div class="current">
-            <div class="current-label">NOW PLAYING</div>
-            <div class="current-name {{ 'none' if not current else '' }}" id="current">
-                {{ current or 'None' }}
+    <div class="container">
+        <div class="current-status">
+            <div class="status-dot {{ 'active' if current else '' }}" id="statusDot"></div>
+            <div class="status-text">
+                <div class="status-label">Now Playing</div>
+                <div class="status-name" id="statusName">{{ current or 'None' }}</div>
             </div>
         </div>
 
-        <div class="grid" id="animations">
-            {% for i, (name, path) in enumerate(animations.items()) %}
-            <div class="animation-btn {{ 'active' if name == current else '' }}"
+        <div class="animation-list" id="animationList">
+            {% for name in animations.keys() %}
+            <div class="animation-item {{ 'active' if name == current else '' }}"
                  data-name="{{ name }}"
                  onclick="selectAnimation('{{ name }}')">
-                <div class="name">{{ name }}</div>
-                <span class="key">{{ i + 1 if i < 9 else '' }}</span>
+                <div class="item-dot"></div>
+                <div class="item-name">{{ name }}</div>
             </div>
             {% endfor %}
         </div>
 
-        <div class="controls">
-            <button class="stop-btn" onclick="stopAnimation()">⏹ Stop (Esc)</button>
+        <div class="hint">
+            <kbd>↑</kbd> <kbd>↓</kbd> navigate |
+            <kbd>Enter</kbd> select |
+            <kbd>⌘K</kbd> search |
+            <kbd>Esc</kbd> stop
         </div>
 
         <a href="http://localhost:8888" target="_blank" class="led-link">
             Open LED Display →
         </a>
+    </div>
 
-        <div class="help">
-            Press 1-9 to select animation • Esc to stop • Arrows to navigate
+    <!-- Command Palette -->
+    <div class="palette-overlay" id="palette">
+        <div class="palette">
+            <input type="text" class="palette-input" id="paletteInput"
+                   placeholder="Search animations..." autocomplete="off">
+            <div class="palette-results" id="paletteResults"></div>
         </div>
     </div>
 
     <script>
+        // animation data from server (trusted source)
         const animations = {{ animations_json | safe }};
         const animationNames = Object.keys(animations);
-        let currentIndex = animationNames.indexOf('{{ current }}');
+        let selectedIndex = animationNames.indexOf('{{ current }}');
+        if (selectedIndex < 0) selectedIndex = 0;
+        let paletteIndex = 0;
+        let filteredNames = [...animationNames];
 
         function selectAnimation(name) {
-            fetch('/api/start/' + name, { method: 'POST' })
+            fetch('/api/start/' + encodeURIComponent(name), { method: 'POST' })
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
                         updateUI(name);
-                        currentIndex = animationNames.indexOf(name);
+                        selectedIndex = animationNames.indexOf(name);
+                        closePalette();
                     }
                 });
         }
@@ -256,46 +348,164 @@ HTML_TEMPLATE = """
             fetch('/api/stop', { method: 'POST' })
                 .then(r => r.json())
                 .then(data => {
-                    if (data.success) {
-                        updateUI(null);
-                        currentIndex = -1;
-                    }
+                    if (data.success) updateUI(null);
                 });
         }
 
         function updateUI(current) {
-            document.getElementById('current').textContent = current || 'None';
-            document.getElementById('current').className =
-                'current-name' + (current ? '' : ' none');
+            document.getElementById('statusName').textContent = current || 'None';
+            document.getElementById('statusDot').className =
+                'status-dot' + (current ? ' active' : '');
 
-            document.querySelectorAll('.animation-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.name === current);
+            document.querySelectorAll('.animation-item').forEach((item, i) => {
+                const isActive = item.dataset.name === current;
+                const isSelected = i === selectedIndex;
+                item.className = 'animation-item' +
+                    (isActive ? ' active' : '') +
+                    (isSelected ? ' selected' : '');
             });
         }
 
+        function updateSelection(index) {
+            selectedIndex = Math.max(0, Math.min(animationNames.length - 1, index));
+            updateUI(document.getElementById('statusName').textContent === 'None' ?
+                     null : document.getElementById('statusName').textContent);
+
+            // scroll into view
+            const items = document.querySelectorAll('.animation-item');
+            if (items[selectedIndex]) {
+                items[selectedIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        // Command palette functions
+        function openPalette() {
+            document.getElementById('palette').classList.add('active');
+            document.getElementById('paletteInput').value = '';
+            document.getElementById('paletteInput').focus();
+            filterPalette('');
+        }
+
+        function closePalette() {
+            document.getElementById('palette').classList.remove('active');
+        }
+
+        function filterPalette(query) {
+            query = query.toLowerCase();
+            filteredNames = animationNames.filter(name =>
+                name.toLowerCase().includes(query)
+            );
+            paletteIndex = 0;
+            renderPaletteResults();
+        }
+
+        function renderPaletteResults() {
+            const results = document.getElementById('paletteResults');
+            const current = document.getElementById('statusName').textContent;
+
+            // clear existing content safely
+            while (results.firstChild) {
+                results.removeChild(results.firstChild);
+            }
+
+            if (filteredNames.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'palette-empty';
+                empty.textContent = 'No animations found';
+                results.appendChild(empty);
+                return;
+            }
+
+            // build results using DOM methods (safe from XSS)
+            filteredNames.forEach((name, i) => {
+                const item = document.createElement('div');
+                item.className = 'palette-item' +
+                    (i === paletteIndex ? ' selected' : '') +
+                    (name === current ? ' active-anim' : '');
+                item.dataset.name = name;
+                item.onclick = () => selectAnimation(name);
+
+                const icon = document.createElement('div');
+                icon.className = 'palette-icon';
+                item.appendChild(icon);
+
+                const text = document.createElement('div');
+                text.textContent = name;
+                item.appendChild(text);
+
+                results.appendChild(item);
+            });
+        }
+
+        document.getElementById('paletteInput').addEventListener('input', (e) => {
+            filterPalette(e.target.value);
+        });
+
+        document.getElementById('palette').addEventListener('click', (e) => {
+            if (e.target.id === 'palette') closePalette();
+        });
+
         document.addEventListener('keydown', (e) => {
+            const paletteOpen = document.getElementById('palette').classList.contains('active');
+
+            // Cmd+K or Ctrl+K to open palette
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                if (paletteOpen) closePalette();
+                else openPalette();
+                return;
+            }
+
             if (e.key === 'Escape') {
-                stopAnimation();
-            } else if (e.key >= '1' && e.key <= '9') {
-                const idx = parseInt(e.key) - 1;
-                if (idx < animationNames.length) {
-                    selectAnimation(animationNames[idx]);
+                if (paletteOpen) {
+                    closePalette();
+                } else {
+                    stopAnimation();
                 }
-            } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
-                currentIndex = (currentIndex + 1) % animationNames.length;
-                selectAnimation(animationNames[currentIndex]);
-            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-                currentIndex = (currentIndex - 1 + animationNames.length) % animationNames.length;
-                selectAnimation(animationNames[currentIndex]);
+                return;
+            }
+
+            if (paletteOpen) {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    paletteIndex = Math.min(filteredNames.length - 1, paletteIndex + 1);
+                    renderPaletteResults();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    paletteIndex = Math.max(0, paletteIndex - 1);
+                    renderPaletteResults();
+                } else if (e.key === 'Enter' && filteredNames.length > 0) {
+                    e.preventDefault();
+                    selectAnimation(filteredNames[paletteIndex]);
+                }
+            } else {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    updateSelection(selectedIndex + 1);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    updateSelection(selectedIndex - 1);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    selectAnimation(animationNames[selectedIndex]);
+                }
             }
         });
 
-        // poll for status updates
+        // poll for status
         setInterval(() => {
             fetch('/api/status')
                 .then(r => r.json())
-                .then(data => updateUI(data.current));
+                .then(data => {
+                    const statusName = document.getElementById('statusName');
+                    if (statusName.textContent !== (data.current || 'None')) {
+                        updateUI(data.current);
+                    }
+                });
         }, 2000);
+
+        // initial selection highlight
+        updateSelection(selectedIndex);
     </script>
 </body>
 </html>
@@ -311,7 +521,6 @@ def index():
         animations=animations,
         animations_json=json.dumps(animations),
         current=current_animation,
-        enumerate=enumerate
     )
 
 
