@@ -1,0 +1,169 @@
+import math
+import random
+from datetime import datetime, timedelta
+from utilities.animator import Animator
+from setup import colours, frames, fonts
+from rgbmatrix import graphics
+
+
+# try to load anniversary config
+def _load_anniversary():
+    try:
+        from config import ANNIVERSARY
+        return ANNIVERSARY
+    except (ImportError, NameError):
+        return None
+
+ANNIVERSARY_DATE = _load_anniversary()
+
+# confetti colors
+CONFETTI_COLORS = [
+    (255, 100, 150),  # pink
+    (255, 50, 100),   # red
+    (255, 200, 100),  # gold
+    (255, 255, 200),  # cream
+]
+
+
+class Confetti:
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.x = random.uniform(0, 63)
+        self.y = random.uniform(-10, 0)
+        self.speed = random.uniform(0.2, 0.6)
+        self.drift = random.uniform(-0.2, 0.2)
+        self.color = random.choice(CONFETTI_COLORS)
+
+
+class AnniversaryScene(object):
+    def __init__(self):
+        super().__init__()
+        self._confetti = [Confetti() for _ in range(25)]
+        self._last_anniversary_pixels = []
+        self._heart_phase = 0
+
+    def _get_days_until(self):
+        if not ANNIVERSARY_DATE:
+            return None
+
+        today = datetime.now()
+        try:
+            month, day = map(int, ANNIVERSARY_DATE.split("-"))
+            anniversary_this_year = datetime(today.year, month, day)
+            if anniversary_this_year < today:
+                anniversary_this_year = datetime(today.year + 1, month, day)
+            delta = anniversary_this_year - today
+            return delta.days
+        except (ValueError, AttributeError):
+            return None
+
+    def _is_anniversary_today(self):
+        if not ANNIVERSARY_DATE:
+            return False
+        today = datetime.now().strftime("%m-%d")
+        return today == ANNIVERSARY_DATE
+
+    @Animator.KeyFrame.add(1)
+    def anniversary(self, count):
+        # only show when no flights overhead
+        if len(self._data):
+            if self._last_anniversary_pixels:
+                for px, py in self._last_anniversary_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_anniversary_pixels = []
+            return
+
+        if not ANNIVERSARY_DATE:
+            return
+
+        days = self._get_days_until()
+        if days is None:
+            return
+
+        # only show when within 7 days or on the day
+        if days > 7 and not self._is_anniversary_today():
+            return
+
+        drawn_pixels = []
+
+        # clear previous
+        for px, py in self._last_anniversary_pixels:
+            self.canvas.SetPixel(px, py, 0, 0, 0)
+
+        self._heart_phase += 0.1
+
+        if self._is_anniversary_today():
+            # celebration mode - full confetti and message
+            message = "Happy Anniversary!"
+            text_color = graphics.Color(255, 150, 200)
+
+            # pulsing text
+            pulse = 0.7 + 0.3 * math.sin(self._heart_phase)
+            text_color = graphics.Color(
+                int(255 * pulse),
+                int(150 * pulse),
+                int(200 * pulse)
+            )
+
+            # center text
+            text_width = len(message) * 4
+            x = (64 - text_width) // 2
+            graphics.DrawText(self.canvas, fonts.extrasmall, x, 16, text_color, message)
+            for tx in range(x, min(64, x + text_width)):
+                for ty in range(10, 18):
+                    drawn_pixels.append((tx, ty))
+
+            # lots of confetti
+            for conf in self._confetti:
+                conf.y += conf.speed
+                conf.x += conf.drift
+
+                if conf.y > 32:
+                    conf.reset()
+                    continue
+
+                px = int(conf.x) % 64
+                py = int(conf.y)
+                if 0 <= py < 32:
+                    r, g, b = conf.color
+                    self.canvas.SetPixel(px, py, r, g, b)
+                    drawn_pixels.append((px, py))
+
+        else:
+            # countdown mode
+            message = f"{days} days"
+            text_color = graphics.Color(255, 150, 200)
+
+            # draw countdown
+            x = (64 - len(message) * 4) // 2
+            graphics.DrawText(self.canvas, fonts.extrasmall, x, 20, text_color, message)
+            for tx in range(x, min(64, x + len(message) * 4)):
+                for ty in range(14, 22):
+                    drawn_pixels.append((tx, ty))
+
+            # draw small heart above
+            heart_x = 28
+            heart_y = 8
+            pulse = 0.8 + 0.2 * math.sin(self._heart_phase)
+            r = int(255 * pulse)
+            g = int(50 * pulse)
+            b = int(80 * pulse)
+
+            # small 5x4 heart
+            heart = [
+                (1, 0), (2, 0), (4, 0), (5, 0),
+                (0, 1), (1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1),
+                (1, 2), (2, 2), (3, 2), (4, 2), (5, 2),
+                (2, 3), (3, 3), (4, 3),
+                (3, 4),
+            ]
+            for hx, hy in heart:
+                px = heart_x + hx
+                py = heart_y + hy
+                if 0 <= px < 64 and 0 <= py < 32:
+                    self.canvas.SetPixel(px, py, r, g, b)
+                    drawn_pixels.append((px, py))
+
+        self._last_anniversary_pixels = drawn_pixels
