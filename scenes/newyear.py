@@ -73,7 +73,7 @@ class Firework:
 class NewYearScene(object):
     def __init__(self):
         super().__init__()
-        self._fireworks = [Firework() for _ in range(5)]
+        self._newyear_fireworks = [Firework() for _ in range(5)]
         self._last_newyear_pixels = []
         self._phase = 0
         self._demo_countdown = 10  # for demo mode
@@ -174,7 +174,7 @@ class NewYearScene(object):
                     drawn_pixels.append((tx, ty))
 
             # launch/update fireworks
-            for fw in self._fireworks:
+            for fw in self._newyear_fireworks:
                 if not fw.active and random.random() < 0.1:
                     fw.reset()
 

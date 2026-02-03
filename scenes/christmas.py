@@ -55,7 +55,7 @@ class Snowflake:
 class ChristmasScene(object):
     def __init__(self):
         super().__init__()
-        self._snowflakes = [Snowflake() for _ in range(25)]
+        self._christmas_snowflakes = [Snowflake() for _ in range(25)]
         self._last_christmas_pixels = []
         self._twinkle_phase = 0
         self._ornament_positions = [
@@ -97,7 +97,7 @@ class ChristmasScene(object):
         tree_y = 8
 
         # draw falling snow
-        for snow in self._snowflakes:
+        for snow in self._christmas_snowflakes:
             snow.y += snow.speed
             snow.x += snow.drift
 

@@ -28,6 +28,9 @@ class FlightDetailsScene(object):
 
     @Animator.KeyFrame.add(0)
     def flight_details(self):
+        # skip while plane intro is playing
+        if hasattr(self, 'is_intro_active') and self.is_intro_active():
+            return
 
         # Guard against no data
         if len(self._data) == 0:

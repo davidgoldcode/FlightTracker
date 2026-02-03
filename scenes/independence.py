@@ -67,8 +67,8 @@ class Star:
 class IndependenceScene(object):
     def __init__(self):
         super().__init__()
-        self._fireworks = [Firework() for _ in range(4)]
-        self._stars = [Star() for _ in range(20)]
+        self._independence_fireworks = [Firework() for _ in range(4)]
+        self._independence_stars = [Star() for _ in range(20)]
         self._last_independence_pixels = []
         self._phase = 0
 
@@ -110,7 +110,7 @@ class IndependenceScene(object):
                 drawn_pixels.append((x, y))
 
         # twinkling stars
-        for star in self._stars:
+        for star in self._independence_stars:
             star.phase += star.twinkle_speed
             brightness = star.brightness * (0.5 + 0.5 * math.sin(star.phase))
             if brightness > 0.3:
@@ -118,7 +118,7 @@ class IndependenceScene(object):
                 self.canvas.SetPixel(star.x, star.y, c, c, c)
 
         # process fireworks
-        for fw in self._fireworks:
+        for fw in self._independence_fireworks:
             if not fw.exploded:
                 # launching
                 if fw.launch_y > fw.y:

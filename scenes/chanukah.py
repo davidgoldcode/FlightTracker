@@ -38,7 +38,7 @@ class Star:
 class ChanukahScene(object):
     def __init__(self):
         super().__init__()
-        self._stars = [Star() for _ in range(15)]
+        self._chanukah_stars = [Star() for _ in range(15)]
         self._last_chanukah_pixels = []
         self._flame_phase = 0
 
@@ -169,7 +169,7 @@ class ChanukahScene(object):
         self._flame_phase += 0.15
 
         # draw twinkling stars in background
-        for star in self._stars:
+        for star in self._chanukah_stars:
             star.phase += star.twinkle_speed
             brightness = star.brightness * (0.5 + 0.5 * math.sin(star.phase))
             r = g = b = int(100 * brightness)

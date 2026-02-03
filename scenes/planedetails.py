@@ -18,6 +18,9 @@ class PlaneDetailsScene(object):
 
     @Animator.KeyFrame.add(1)
     def plane_details(self, count):
+        # skip while plane intro is playing
+        if hasattr(self, 'is_intro_active') and self.is_intro_active():
+            return
 
         # Guard against no data
         if len(self._data) == 0:

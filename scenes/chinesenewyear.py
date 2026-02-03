@@ -81,7 +81,7 @@ class ChineseNewYearScene(object):
     def __init__(self):
         super().__init__()
         self._lanterns = [Lantern(x * 12 + 6) for x in range(5)]
-        self._fireworks = [Firework() for _ in range(2)]
+        self._cny_fireworks = [Firework() for _ in range(2)]
         self._last_cny_pixels = []
         self._phase = 0
 
@@ -199,7 +199,7 @@ class ChineseNewYearScene(object):
             self._draw_lantern(drawn_pixels, sway_x, lantern.base_y, lantern.size)
 
         # fireworks
-        for fw in self._fireworks:
+        for fw in self._cny_fireworks:
             if not fw.exploded:
                 if fw.launch_y > fw.y:
                     fw.launch_y -= fw.launch_speed

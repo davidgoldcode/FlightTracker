@@ -24,15 +24,15 @@ class Snowflake:
 class FallingSnowScene(object):
     def __init__(self):
         super().__init__()
-        self._snowflakes = []
+        self._fallingsnow_flakes = []
         self._snow_initialized = False
         self._last_snow_pixels = []
         self._snow_accumulation = [0] * 64  # snow buildup at bottom
 
     def _init_snow(self):
-        self._snowflakes = [Snowflake() for _ in range(NUM_SNOWFLAKES)]
+        self._fallingsnow_flakes = [Snowflake() for _ in range(NUM_SNOWFLAKES)]
         # spread initial snowflakes across screen
-        for i, flake in enumerate(self._snowflakes):
+        for i, flake in enumerate(self._fallingsnow_flakes):
             flake.y = random.uniform(0, 31)
         self._snow_initialized = True
 
@@ -58,7 +58,7 @@ class FallingSnowScene(object):
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
         # update and draw snowflakes
-        for flake in self._snowflakes:
+        for flake in self._fallingsnow_flakes:
             # update position
             flake.y += flake.speed
             flake.x += flake.drift + random.uniform(-0.1, 0.1)  # slight random wobble

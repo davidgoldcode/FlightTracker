@@ -4,7 +4,6 @@ Shows a commercial airliner flying across screen - fills full height.
 """
 from utilities.animator import Animator
 from setup import colours, frames
-from rgbmatrix import graphics
 
 
 class PlaneIntroScene(object):
@@ -181,11 +180,7 @@ class PlaneIntroScene(object):
                     green_val = 240 - int(py * 2)
                     self.canvas.SetPixel(px, py, 135 - py, green_val, 255)
 
-        # draw flight info preview on the revealed (left) side
-        if plane_back_x > 5:
-            self._draw_flight_preview(plane_back_x)
-
-        # draw the plane
+        # draw the plane (no preview - let real scenes render after intro ends)
         self._draw_plane(self._plane_intro_x)
 
         # move plane
@@ -195,43 +190,6 @@ class PlaneIntroScene(object):
         # end animation when plane fully exits
         if self._plane_intro_x > 70:
             self._plane_intro_active = False
-
-    def _draw_flight_preview(self, reveal_x):
-        """Draw flight info that gets revealed as plane passes."""
-        from setup import fonts
-
-        # use real data if available, otherwise demo data
-        if hasattr(self, '_data') and self._data and len(self._data) > 0:
-            flight = self._data[0]
-            callsign = flight.get('callsign', 'UAL123')
-            origin = flight.get('origin', 'JFK')
-            dest = flight.get('destination', 'LAX')
-        else:
-            # demo mode
-            callsign = 'UAL123'
-            origin = 'JFK'
-            dest = 'LAX'
-
-        # colors
-        yellow = graphics.Color(255, 200, 0)
-        white = graphics.Color(200, 200, 200)
-        cyan = graphics.Color(0, 200, 255)
-
-        # only draw text that's within the revealed area
-        # callsign at top
-        if reveal_x > 10:
-            text_x = 2
-            for i, char in enumerate(callsign[:reveal_x // 4]):
-                graphics.DrawText(self.canvas, fonts.small, text_x + i * 5, 10, yellow, callsign[i] if i < len(callsign) else '')
-
-        # route in middle
-        if reveal_x > 20:
-            route = f"{origin}->{dest}"
-            graphics.DrawText(self.canvas, fonts.extrasmall, 2, 20, white, route[:reveal_x // 3])
-
-        # "OVERHEAD" at bottom
-        if reveal_x > 30:
-            graphics.DrawText(self.canvas, fonts.extrasmall, 2, 28, cyan, "OVERHEAD"[:reveal_x // 5])
 
     def is_intro_active(self):
         """Check if intro animation is currently playing."""

@@ -46,19 +46,19 @@ class ShootingStar:
 class StarfieldScene(object):
     def __init__(self):
         super().__init__()
-        self._stars = []
-        self._shooting_stars = []
+        self._starfield_stars = []
+        self._starfield_shooting_stars = []
         self._starfield_initialized = False
         self._last_star_pixels = []
 
     def _init_stars(self):
-        self._stars = []
+        self._starfield_stars = []
         for _ in range(NUM_STARS):
             x = random.randint(0, 63)
             y = random.randint(0, 31)
             brightness = random.randint(0, len(STAR_COLORS) - 1)
             phase = random.uniform(0, 2 * math.pi)
-            self._stars.append(Star(x, y, brightness, phase))
+            self._starfield_stars.append(Star(x, y, brightness, phase))
         self._starfield_initialized = True
 
     @Animator.KeyFrame.add(frames.PER_SECOND // 10)
@@ -83,7 +83,7 @@ class StarfieldScene(object):
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
         # update and draw stars
-        for star in self._stars:
+        for star in self._starfield_stars:
             star.phase += star.twinkle_speed
             if star.phase > 2 * math.pi:
                 star.phase -= 2 * math.pi
@@ -100,11 +100,11 @@ class StarfieldScene(object):
 
         # maybe spawn shooting star
         if random.random() < SHOOTING_STAR_CHANCE:
-            self._shooting_stars.append(ShootingStar())
+            self._starfield_shooting_stars.append(ShootingStar())
 
         # update shooting stars
         new_shooting_stars = []
-        for ss in self._shooting_stars:
+        for ss in self._starfield_shooting_stars:
             ss.x += ss.speed_x
             ss.y += ss.speed_y
             ss.life += 1
@@ -126,5 +126,5 @@ class StarfieldScene(object):
             if 0 <= ss.x < 64 and 0 <= ss.y < 32:
                 new_shooting_stars.append(ss)
 
-        self._shooting_stars = new_shooting_stars
+        self._starfield_shooting_stars = new_shooting_stars
         self._last_star_pixels = drawn_pixels
