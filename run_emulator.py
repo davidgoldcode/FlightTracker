@@ -3,6 +3,9 @@ import sys
 # pygame-ce installs as 'pygame' module
 from RGBMatrixEmulator import RGBMatrix, RGBMatrixOptions, graphics
 
+print("\n✨ LED Emulator starting...")
+print("   Open http://localhost:8888 in your browser\n")
+
 # patch rgbmatrix module to use emulator
 sys.modules['rgbmatrix'] = type(sys)('rgbmatrix')
 sys.modules['rgbmatrix'].RGBMatrix = RGBMatrix
