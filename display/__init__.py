@@ -8,11 +8,15 @@ from scenes.weather import WeatherScene
 from scenes.flightdetails import FlightDetailsScene
 from scenes.journey import JourneyScene
 from scenes.loadingpulse import LoadingPulseScene
-from scenes.loadingled import LoadingLEDScene
+try:
+    from scenes.loadingled import LoadingLEDScene
+except ImportError:
+    LoadingLEDScene = LoadingPulseScene  # fallback on Mac
 from scenes.clock import ClockScene
 from scenes.planedetails import PlaneDetailsScene
 from scenes.day import DayScene
 from scenes.date import DateScene
+from scenes.heartbeat import HeartbeatScene
 
 from rgbmatrix import graphics
 from rgbmatrix import RGBMatrix, RGBMatrixOptions
@@ -53,11 +57,12 @@ class Display(
     WeatherScene,
     FlightDetailsScene,
     JourneyScene,
-    LoadingLEDScene if LOADING_LED_ENABLED else LoadingPulseScene ,
+    LoadingLEDScene if LOADING_LED_ENABLED else LoadingPulseScene,
     PlaneDetailsScene,
     ClockScene,
     DayScene,
     DateScene,
+    HeartbeatScene,
     Animator,
 ):
     def __init__(self):
