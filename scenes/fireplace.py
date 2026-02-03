@@ -6,20 +6,21 @@ from setup import frames
 
 # fire colors from hottest to coolest
 FIRE_COLORS = [
-    (255, 255, 200),  # white/yellow (hottest)
-    (255, 200, 50),   # bright yellow
-    (255, 150, 0),    # orange
-    (255, 80, 0),     # red-orange
+    (255, 255, 220),  # white/yellow (hottest core)
+    (255, 220, 80),   # bright yellow
+    (255, 180, 20),   # yellow-orange
+    (255, 120, 0),    # orange
+    (255, 60, 0),     # red-orange
     (200, 30, 0),     # red
-    (100, 10, 0),     # dark red
-    (50, 5, 0),       # embers
+    (120, 20, 0),     # dark red
+    (60, 10, 0),      # embers
 ]
 
-# fireplace dimensions
-FIRE_WIDTH = 40
-FIRE_HEIGHT = 20
-FIRE_X_OFFSET = 12  # center on 64px display
-FIRE_Y_OFFSET = 12  # bottom portion of display
+# fireplace dimensions - taller and wider
+FIRE_WIDTH = 48
+FIRE_HEIGHT = 28
+FIRE_X_OFFSET = 8   # center on 64px display
+FIRE_Y_OFFSET = 4   # start higher to fill more screen
 
 
 class FireplaceScene(object):
@@ -67,29 +68,46 @@ class FireplaceScene(object):
         for px, py in self._last_fire_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
-        # generate heat at bottom
+        # generate intense heat at bottom (fire source)
         for x in range(FIRE_WIDTH):
-            # random heat at base with some variation
-            heat = random.randint(180, 255)
-            # create gaps for flickering effect
-            if random.random() < 0.3:
-                heat = random.randint(100, 180)
-            self._fire_grid[FIRE_HEIGHT - 1][x] = heat
+            # center burns hotter
+            center_dist = abs(x - FIRE_WIDTH // 2)
+            center_bonus = max(0, 30 - center_dist)
 
-        # propagate fire upward with cooling
-        for y in range(FIRE_HEIGHT - 2, -1, -1):
+            # base heat with variation
+            heat = random.randint(220, 255) + center_bonus
+            heat = min(255, heat)
+
+            # occasional cooler spots for flicker
+            if random.random() < 0.15:
+                heat = random.randint(180, 220)
+
+            self._fire_grid[FIRE_HEIGHT - 1][x] = heat
+            # also seed the row above for taller flames
+            if random.random() < 0.7:
+                self._fire_grid[FIRE_HEIGHT - 2][x] = random.randint(200, 255)
+
+        # propagate fire upward with gentler cooling
+        for y in range(FIRE_HEIGHT - 3, -1, -1):
             for x in range(FIRE_WIDTH):
-                # sample from below with slight randomness
+                # sample from below with wind drift
                 below_left = self._fire_grid[y + 1][max(0, x - 1)]
                 below = self._fire_grid[y + 1][x]
                 below_right = self._fire_grid[y + 1][min(FIRE_WIDTH - 1, x + 1)]
+                below_far = self._fire_grid[min(FIRE_HEIGHT - 1, y + 2)][x]
 
-                # average with wind drift
-                avg = (below_left + below + below + below_right) // 4
+                # weighted average favoring center column
+                avg = (below_left + below * 3 + below_right + below_far) // 6
 
-                # cooling factor (more cooling higher up)
-                cooling = random.randint(10, 30) + y
-                self._fire_grid[y][x] = max(0, avg - cooling)
+                # gentler cooling that increases with height
+                height_factor = y / FIRE_HEIGHT  # 0 at bottom, 1 at top
+                cooling = random.randint(3, 12) + int(height_factor * 15)
+
+                # add random flicker/turbulence
+                if random.random() < 0.1:
+                    avg += random.randint(-20, 30)
+
+                self._fire_grid[y][x] = max(0, min(255, avg - cooling))
 
         # draw fire
         for y in range(FIRE_HEIGHT):
