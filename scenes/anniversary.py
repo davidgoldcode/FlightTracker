@@ -14,7 +14,16 @@ def _load_anniversary():
     except (ImportError, NameError):
         return None
 
+def _is_demo_mode():
+    """Check if running in test/demo mode (no config or testing)."""
+    try:
+        from config import ANNIVERSARY
+        return False  # config exists, use real logic
+    except (ImportError, NameError):
+        return True  # no config, demo mode
+
 ANNIVERSARY_DATE = _load_anniversary()
+DEMO_MODE = _is_demo_mode()
 
 # confetti colors
 CONFETTI_COLORS = [
@@ -75,16 +84,20 @@ class AnniversaryScene(object):
                 self._last_anniversary_pixels = []
             return
 
-        if not ANNIVERSARY_DATE:
-            return
+        # in demo mode, always show countdown animation
+        if DEMO_MODE:
+            days = 5  # simulate 5 days until anniversary
+        else:
+            if not ANNIVERSARY_DATE:
+                return
 
-        days = self._get_days_until()
-        if days is None:
-            return
+            days = self._get_days_until()
+            if days is None:
+                return
 
-        # only show when within 7 days or on the day
-        if days > 7 and not self._is_anniversary_today():
-            return
+            # only show when within 7 days or on the day
+            if days > 7 and not self._is_anniversary_today():
+                return
 
         drawn_pixels = []
 
