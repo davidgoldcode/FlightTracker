@@ -193,6 +193,9 @@ class PlaneIntroScene(object):
         # end animation when plane fully exits
         if self._plane_intro_x > 70:
             self._plane_intro_active = False
+            # trigger reset_scene so divisor-0 keyframes (journey, flightdetails) render
+            if hasattr(self, 'reset_scene'):
+                self.reset_scene()
 
     def is_intro_active(self):
         """Check if intro animation is currently playing."""
