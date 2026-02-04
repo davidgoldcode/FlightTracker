@@ -26,13 +26,17 @@ for arg in sys.argv[1:]:
         sys.argv.remove(arg)
         break
 
-# patch rgbmatrix to use emulator
-from RGBMatrixEmulator import RGBMatrix, RGBMatrixOptions, graphics
-
-sys.modules['rgbmatrix'] = type(sys)('rgbmatrix')
-sys.modules['rgbmatrix'].RGBMatrix = RGBMatrix
-sys.modules['rgbmatrix'].RGBMatrixOptions = RGBMatrixOptions
-sys.modules['rgbmatrix'].graphics = graphics
+# try emulator first (Mac), fall back to real hardware (Pi)
+try:
+    from RGBMatrixEmulator import RGBMatrix, RGBMatrixOptions, graphics
+    sys.modules['rgbmatrix'] = type(sys)('rgbmatrix')
+    sys.modules['rgbmatrix'].RGBMatrix = RGBMatrix
+    sys.modules['rgbmatrix'].RGBMatrixOptions = RGBMatrixOptions
+    sys.modules['rgbmatrix'].graphics = graphics
+    USE_EMULATOR = True
+except ImportError:
+    # on Pi, use real hardware
+    USE_EMULATOR = False
 
 # force demo mode by removing config module so scenes fall back to demo mode
 # this ensures all animations render even if config has holidays disabled
@@ -47,7 +51,10 @@ class FakeConfigModule:
 sys.modules['config'] = FakeConfigModule()
 
 print("\n✨ Animation Tester (Demo Mode)")
-print("   Open http://localhost:8888 in your browser")
+if USE_EMULATOR:
+    print("   Open http://localhost:8888 in your browser")
+else:
+    print("   Running on LED hardware")
 if scenario:
     print(f"   Scenario: {scenario}")
 print()
