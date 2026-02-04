@@ -139,21 +139,24 @@ class PlaneIntroScene(object):
             self._set_pixel(x + 31, dy, dark_gray)
 
     def _is_demo_mode(self):
-        """Check if running in test/demo mode."""
-        return not hasattr(self, 'overhead') or self.overhead is None or \
-               (hasattr(self.overhead, 'data_is_empty') and self.overhead.data_is_empty)
+        """Check if running in test/demo mode (test_animation.py)."""
+        # demo mode only when overhead doesn't exist (test harness)
+        # NOT when overhead exists but has no data (that's just idle mode)
+        return not hasattr(self, 'overhead') or self.overhead is None
 
     @Animator.KeyFrame.add(1)
     def plane_intro(self, count):
         demo_mode = self._is_demo_mode()
 
         if demo_mode:
+            # in test_animation.py - loop the intro for demo purposes
             if not self._plane_intro_active and self._plane_intro_x > 70:
                 if count % 30 == 0:
                     self.trigger_plane_intro()
             elif not self._plane_intro_active:
                 self.trigger_plane_intro()
         else:
+            # production mode - only trigger on flight detection
             has_flights_now = len(self._data) > 0
             if not has_flights_now:
                 self._had_no_flights = True
