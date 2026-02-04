@@ -41,9 +41,6 @@ class JourneyScene(object):
 
     @Animator.KeyFrame.add(0)
     def journey(self):
-        # skip while plane intro is playing
-        if hasattr(self, 'is_intro_active') and self.is_intro_active():
-            return
         # Guard against no data
         if len(self._data) == 0:
             return
@@ -84,9 +81,6 @@ class JourneyScene(object):
 
     @Animator.KeyFrame.add(0)
     def journey_arrow(self):
-        # skip while plane intro is playing
-        if hasattr(self, 'is_intro_active') and self.is_intro_active():
-            return
         # Guard against no data
         if len(self._data) == 0:
             return

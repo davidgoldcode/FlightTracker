@@ -165,17 +165,15 @@ class PlaneIntroScene(object):
             return
 
         # the plane acts as a "wipe" transition
-        # left of plane = black with flight info preview
+        # left of plane = flight info (rendered by other scenes)
         # right of plane = sky background
-        plane_back_x = self._plane_intro_x - 2  # trailing edge of plane
+        plane_front_x = self._plane_intro_x + 50  # leading edge of plane
 
+        # only draw sky on the right side of the plane (don't overwrite flight info on left)
         for py in range(32):
-            for px in range(64):
-                if px < plane_back_x:
-                    # left side: black (flight info area)
-                    self.canvas.SetPixel(px, py, 0, 0, 0)
-                else:
-                    # right side: sky
+            for px in range(int(plane_front_x), 64):
+                if 0 <= px < 64:
+                    # sky gradient
                     blue_val = 220 - int(py * 1.5)
                     green_val = 240 - int(py * 2)
                     self.canvas.SetPixel(px, py, 135 - py, green_val, 255)
