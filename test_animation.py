@@ -163,6 +163,7 @@ def main():
             options.cols = 64
             options.hardware_mapping = "adafruit-hat"
             options.brightness = 50
+            options.gpio_slowdown = 4  # required for Pi hardware
             options.disable_hardware_pulsing = True
             self.matrix = RGBMatrix(options=options)
             self.canvas = self.matrix.CreateFrameCanvas()
