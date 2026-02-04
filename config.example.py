@@ -45,9 +45,18 @@ OPENWEATHER_API_KEY = ""
 MY_BIRTHDAY = "01-01"
 PARTNER_BIRTHDAY = "01-01"
 ANNIVERSARY = "01-01"
+
+# OTHER_BIRTHDAYS supports two formats:
+# Simple: just the date string
+#   "Mom": "03-15"
+# With countdown: dict with date and countdown days (default: 3)
+#   "Mom": {"date": "03-15", "countdown": 5}
+#
+# MY_BIRTHDAY and PARTNER_BIRTHDAY show on the day only (no countdown)
+# OTHER_BIRTHDAYS will show countdown X days before
 OTHER_BIRTHDAYS = {
     "Mom": "01-01",
-    "Dad": "01-01",
+    "Dad": {"date": "01-01", "countdown": 5},
 }
 
 # =============================================================================
@@ -68,13 +77,44 @@ HOLIDAYS = {
 }
 
 # =============================================================================
-# QUIET HOURS (dim/ambient mode)
+# QUIET HOURS (dim/off schedules)
 # =============================================================================
 
+# NEW: Enhanced quiet hours with separate weekday/weekend schedules
+# Each schedule can have "dim" and "off" periods
+# Times are in 24-hour format (HH:MM)
+# "off" takes priority over "dim" when both overlap
+QUIET_SCHEDULE = {
+    "weekday": {
+        "dim": {
+            "start": "22:00",
+            "end": "02:00",
+            "brightness": 30,
+        },
+        "off": {
+            "start": "02:00",
+            "end": "06:00",
+        },
+    },
+    "weekend": {
+        "dim": {
+            "start": "23:00",
+            "end": "02:00",
+            "brightness": 30,
+        },
+        "off": {
+            "start": "02:00",
+            "end": "07:00",
+        },
+    },
+}
+
+# LEGACY: Simple quiet hours (deprecated, use QUIET_SCHEDULE instead)
+# If QUIET_SCHEDULE is not defined, these values are used as fallback
 QUIET_HOURS_START = "23:00"  # 24-hour format
 QUIET_HOURS_END = "07:00"
-QUIET_MODE = "starfield"     # options: starfield, off, dim
-QUIET_BRIGHTNESS = 20        # 0-100
+QUIET_MODE = "off"           # options: off, dim
+QUIET_BRIGHTNESS = 20        # 0-100 (only used when mode is "dim")
 
 # =============================================================================
 # CUSTOM MESSAGES

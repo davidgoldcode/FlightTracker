@@ -1,13 +1,30 @@
 #!/usr/bin/env python3
 """
-Test individual animations in isolation.
+Test individual animations in isolation with scenario support.
 
 Usage:
-    python test_animation.py heartbeat
-    python test_animation.py clock
-    python test_animation.py weather
+    python test_animation.py <animation>
+    python test_animation.py <animation> --scenario=<scenario>
+
+Scenarios (for birthday/anniversary):
+    --scenario=day-of       Show the "day of" celebration
+    --scenario=countdown:N  Show N days countdown (e.g., countdown:3)
+
+Examples:
+    python test_animation.py birthday
+    python test_animation.py birthday --scenario=day-of
+    python test_animation.py birthday --scenario=countdown:1
+    python test_animation.py anniversary --scenario=countdown:5
 """
 import sys
+
+# parse scenario arg before other imports
+scenario = None
+for arg in sys.argv[1:]:
+    if arg.startswith('--scenario='):
+        scenario = arg.split('=', 1)[1]
+        sys.argv.remove(arg)
+        break
 
 # patch rgbmatrix to use emulator
 from RGBMatrixEmulator import RGBMatrix, RGBMatrixOptions, graphics
@@ -30,7 +47,10 @@ class FakeConfigModule:
 sys.modules['config'] = FakeConfigModule()
 
 print("\n✨ Animation Tester (Demo Mode)")
-print("   Open http://localhost:8888 in your browser\n")
+print("   Open http://localhost:8888 in your browser")
+if scenario:
+    print(f"   Scenario: {scenario}")
+print()
 
 from utilities.animator import Animator
 from setup import frames
@@ -65,24 +85,67 @@ ANIMATIONS = {
     'planeintro': 'scenes.planeintro.PlaneIntroScene',
 }
 
+# animations that support scenarios
+SCENARIO_ANIMATIONS = {'birthday', 'anniversary'}
+
+
+def parse_scenario(scenario_str):
+    """Parse scenario string into (type, value).
+
+    Returns:
+        ('day-of', None) for day-of celebrations
+        ('countdown', N) for countdown scenarios
+        (None, None) for default/demo mode
+    """
+    if not scenario_str:
+        return (None, None)
+
+    if scenario_str == 'day-of':
+        return ('day-of', 0)
+
+    if scenario_str.startswith('countdown:'):
+        try:
+            days = int(scenario_str.split(':')[1])
+            return ('countdown', days)
+        except (ValueError, IndexError):
+            print(f"Invalid countdown format: {scenario_str}")
+            print("Use: --scenario=countdown:N (e.g., countdown:3)")
+            sys.exit(1)
+
+    print(f"Unknown scenario: {scenario_str}")
+    print("Available: day-of, countdown:N")
+    sys.exit(1)
+
+
 def get_scene_class(name):
     if name not in ANIMATIONS:
         print(f"Unknown animation: {name}")
-        print(f"Available: {', '.join(ANIMATIONS.keys())}")
+        print(f"Available: {', '.join(sorted(ANIMATIONS.keys()))}")
         sys.exit(1)
 
     module_path, class_name = ANIMATIONS[name].rsplit('.', 1)
     module = __import__(module_path, fromlist=[class_name])
     return getattr(module, class_name)
 
+
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python test_animation.py <animation>")
-        print(f"Available: {', '.join(ANIMATIONS.keys())}")
+        print("Usage: python test_animation.py <animation> [--scenario=<scenario>]")
+        print(f"\nAvailable animations: {', '.join(sorted(ANIMATIONS.keys()))}")
+        print("\nScenarios (for birthday/anniversary):")
+        print("  --scenario=day-of       Show the celebration")
+        print("  --scenario=countdown:N  Show N days countdown")
         sys.exit(1)
 
     animation_name = sys.argv[1]
     SceneClass = get_scene_class(animation_name)
+
+    # parse scenario
+    scenario_type, scenario_value = parse_scenario(scenario)
+
+    # warn if scenario used with non-supporting animation
+    if scenario and animation_name not in SCENARIO_ANIMATIONS:
+        print(f"Warning: {animation_name} doesn't support scenarios, ignoring --scenario")
 
     # create minimal display with just this animation
     class TestDisplay(SceneClass, Animator):
@@ -113,12 +176,29 @@ def main():
             super().__init__()
             self.delay = frames.PERIOD
 
+            # apply scenario after init
+            if animation_name in SCENARIO_ANIMATIONS and scenario_type:
+                self._apply_scenario(scenario_type, scenario_value)
+
+        def _apply_scenario(self, stype, svalue):
+            """Apply scenario to the display."""
+            if stype == 'day-of':
+                # set scenario to day-of (0 days)
+                if hasattr(self, '_scenario_days'):
+                    self._scenario_days = 0
+            elif stype == 'countdown':
+                # set scenario to countdown
+                if hasattr(self, '_scenario_days'):
+                    self._scenario_days = svalue
+
         @Animator.KeyFrame.add(1)
         def sync(self, count):
             self.matrix.SwapOnVSync(self.canvas)
 
         def run(self):
             print(f"Testing: {animation_name}")
+            if scenario:
+                print(f"Scenario: {scenario}")
             print("Press CTRL-C to stop\n")
             try:
                 self.play()

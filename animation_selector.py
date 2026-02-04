@@ -67,14 +67,23 @@ def stop_animation():
         current_animation = None
 
 
-def start_animation(name):
-    """Start an animation by name."""
-    global current_process, current_animation
+current_scenario = None
+
+# animations that support scenarios
+SCENARIO_ANIMATIONS = {'birthday', 'anniversary'}
+
+
+def start_animation(name, scenario=None):
+    """Start an animation by name with optional scenario."""
+    global current_process, current_animation, current_scenario
 
     stop_animation()
 
     # start test_animation.py in a new process group
     cmd = [sys.executable, 'test_animation.py', name]
+    if scenario and name in SCENARIO_ANIMATIONS:
+        cmd.append(f'--scenario={scenario}')
+
     current_process = subprocess.Popen(
         cmd,
         stdout=subprocess.DEVNULL,
@@ -82,6 +91,7 @@ def start_animation(name):
         preexec_fn=os.setsid
     )
     current_animation = name
+    current_scenario = scenario if name in SCENARIO_ANIMATIONS else None
     return True
 
 
@@ -340,29 +350,107 @@ HTML_TEMPLATE = """
         </div>
     </div>
 
+    <!-- Scenario Palette -->
+    <div class="palette-overlay" id="scenarioPalette">
+        <div class="palette">
+            <div class="palette-input" style="padding: 14px; border-bottom: 1px solid #30363d;">
+                <span style="color: #58a6ff;" id="scenarioAnimName"></span> - Select Scenario
+            </div>
+            <div class="palette-results" id="scenarioResults"></div>
+            <div style="padding: 10px 14px; border-top: 1px solid #30363d; font-size: 11px; color: #6e7681; text-align: center;">
+                <kbd>Esc</kbd> cancel | <kbd>↑↓</kbd> navigate | <kbd>Enter</kbd> select
+            </div>
+        </div>
+    </div>
+
     <script>
         // animation data from server (trusted source)
         const animations = {{ animations_json | safe }};
         const animationNames = Object.keys(animations);
+        const scenarioAnimations = new Set(['birthday', 'anniversary']);
         let selectedIndex = animationNames.indexOf('{{ current }}');
         if (selectedIndex < 0) selectedIndex = 0;
         let paletteIndex = 0;
         let filteredNames = [...animationNames];
+        let pendingAnimation = null;
+        let scenarioIndex = 0;
+        let scenarios = [];
 
         async function selectAnimation(name, navigateAfter = false) {
-            const response = await fetch('/api/start/' + encodeURIComponent(name), { method: 'POST' });
+            // check if this animation supports scenarios
+            if (scenarioAnimations.has(name)) {
+                pendingAnimation = { name, navigateAfter };
+                await openScenarioPalette(name);
+                return true;
+            }
+
+            return await startAnimation(name, null, navigateAfter);
+        }
+
+        async function startAnimation(name, scenario, navigateAfter = false) {
+            const body = scenario ? JSON.stringify({ scenario }) : null;
+            const response = await fetch('/api/start/' + encodeURIComponent(name), {
+                method: 'POST',
+                headers: scenario ? { 'Content-Type': 'application/json' } : {},
+                body
+            });
             const data = await response.json();
             if (data.success) {
                 updateUI(name);
                 selectedIndex = animationNames.indexOf(name);
                 closePalette();
+                closeScenarioPalette();
                 if (navigateAfter) {
-                    // wait a moment for emulator to start before navigating
                     await new Promise(r => setTimeout(r, 500));
                     window.location.href = '/display';
                 }
             }
             return data.success;
+        }
+
+        async function openScenarioPalette(name) {
+            const response = await fetch('/api/scenarios/' + encodeURIComponent(name));
+            const data = await response.json();
+            scenarios = data.scenarios || [];
+            scenarioIndex = 0;
+
+            document.getElementById('scenarioAnimName').textContent = name;
+            document.getElementById('scenarioPalette').classList.add('active');
+            renderScenarioResults();
+        }
+
+        function closeScenarioPalette() {
+            document.getElementById('scenarioPalette').classList.remove('active');
+            pendingAnimation = null;
+        }
+
+        function renderScenarioResults() {
+            const results = document.getElementById('scenarioResults');
+            while (results.firstChild) {
+                results.removeChild(results.firstChild);
+            }
+
+            scenarios.forEach((scenario, i) => {
+                const item = document.createElement('div');
+                item.className = 'palette-item' + (i === scenarioIndex ? ' selected' : '');
+                item.onclick = () => selectScenario(scenario.id);
+
+                const icon = document.createElement('div');
+                icon.className = 'palette-icon';
+                item.appendChild(icon);
+
+                const text = document.createElement('div');
+                text.textContent = scenario.label;
+                item.appendChild(text);
+
+                results.appendChild(item);
+            });
+        }
+
+        async function selectScenario(scenarioId) {
+            if (!pendingAnimation) return;
+            const { name, navigateAfter } = pendingAnimation;
+            await startAnimation(name, scenarioId, navigateAfter);
         }
 
         function stopAnimation() {
@@ -466,22 +554,47 @@ HTML_TEMPLATE = """
             if (e.target.id === 'palette') closePalette();
         });
 
+        document.getElementById('scenarioPalette').addEventListener('click', (e) => {
+            if (e.target.id === 'scenarioPalette') closeScenarioPalette();
+        });
+
         document.addEventListener('keydown', (e) => {
             const paletteOpen = document.getElementById('palette').classList.contains('active');
+            const scenarioPaletteOpen = document.getElementById('scenarioPalette').classList.contains('active');
 
             // Cmd+K or Ctrl+K to open palette
             if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
                 e.preventDefault();
+                if (scenarioPaletteOpen) return;
                 if (paletteOpen) closePalette();
                 else openPalette();
                 return;
             }
 
             if (e.key === 'Escape') {
-                if (paletteOpen) {
+                if (scenarioPaletteOpen) {
+                    closeScenarioPalette();
+                } else if (paletteOpen) {
                     closePalette();
                 } else {
                     stopAnimation();
+                }
+                return;
+            }
+
+            // handle scenario palette navigation
+            if (scenarioPaletteOpen) {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    scenarioIndex = Math.min(scenarios.length - 1, scenarioIndex + 1);
+                    renderScenarioResults();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    scenarioIndex = Math.max(0, scenarioIndex - 1);
+                    renderScenarioResults();
+                } else if (e.key === 'Enter' && scenarios.length > 0) {
+                    e.preventDefault();
+                    selectScenario(scenarios[scenarioIndex].id);
                 }
                 return;
             }
@@ -731,13 +844,30 @@ DISPLAY_TEMPLATE = """
         </div>
     </div>
 
+    <!-- Scenario Palette -->
+    <div class="palette-overlay" id="scenarioPalette">
+        <div class="palette">
+            <div class="palette-input" style="padding: 16px; border-bottom: 1px solid #30363d;">
+                <span style="color: #58a6ff;" id="scenarioAnimName"></span> - Select Scenario
+            </div>
+            <div class="palette-results" id="scenarioResults"></div>
+            <div class="palette-back">
+                <kbd>Esc</kbd> cancel | <kbd>↑↓</kbd> navigate | <kbd>Enter</kbd> select
+            </div>
+        </div>
+    </div>
+
     <script>
         let animations = {};
         let animationNames = [];
+        const scenarioAnimations = new Set(['birthday', 'anniversary']);
         let currentAnimation = null;
         let paletteIndex = 0;
         let filteredNames = [];
         let emulatorReady = false;
+        let pendingAnimation = null;
+        let scenarioIndex = 0;
+        let scenarios = [];
 
         // load animations from API
         fetch('/api/animations')
@@ -788,19 +918,77 @@ DISPLAY_TEMPLATE = """
 
         loadEmulator();
 
-        function selectAnimation(name) {
-            fetch('/api/start/' + encodeURIComponent(name), { method: 'POST' })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
-                        currentAnimation = name;
-                        closePalette();
-                        // reload emulator after animation change
-                        document.getElementById('loading').classList.remove('hidden');
-                        document.getElementById('ledFrame').classList.add('hidden');
-                        loadEmulator();
-                    }
-                });
+        async function selectAnimation(name) {
+            // check if this animation supports scenarios
+            if (scenarioAnimations.has(name)) {
+                pendingAnimation = name;
+                await openScenarioPalette(name);
+                return;
+            }
+            await startAnimation(name, null);
+        }
+
+        async function startAnimation(name, scenario) {
+            const body = scenario ? JSON.stringify({ scenario }) : null;
+            const response = await fetch('/api/start/' + encodeURIComponent(name), {
+                method: 'POST',
+                headers: scenario ? { 'Content-Type': 'application/json' } : {},
+                body
+            });
+            const data = await response.json();
+            if (data.success) {
+                currentAnimation = name;
+                closePalette();
+                closeScenarioPalette();
+                // reload emulator after animation change
+                document.getElementById('loading').classList.remove('hidden');
+                document.getElementById('ledFrame').classList.add('hidden');
+                loadEmulator();
+            }
+        }
+
+        async function openScenarioPalette(name) {
+            const response = await fetch('/api/scenarios/' + encodeURIComponent(name));
+            const data = await response.json();
+            scenarios = data.scenarios || [];
+            scenarioIndex = 0;
+
+            document.getElementById('scenarioAnimName').textContent = name;
+            document.getElementById('scenarioPalette').classList.add('active');
+            renderScenarioResults();
+        }
+
+        function closeScenarioPalette() {
+            document.getElementById('scenarioPalette').classList.remove('active');
+            pendingAnimation = null;
+        }
+
+        function renderScenarioResults() {
+            const results = document.getElementById('scenarioResults');
+            while (results.firstChild) {
+                results.removeChild(results.firstChild);
+            }
+
+            scenarios.forEach((scenario, i) => {
+                const item = document.createElement('div');
+                item.className = 'palette-item' + (i === scenarioIndex ? ' selected' : '');
+                item.onclick = () => selectScenario(scenario.id);
+
+                const icon = document.createElement('div');
+                icon.className = 'palette-icon';
+                item.appendChild(icon);
+
+                const text = document.createElement('div');
+                text.textContent = scenario.label;
+                item.appendChild(text);
+
+                results.appendChild(item);
+            });
+        }
+
+        async function selectScenario(scenarioId) {
+            if (!pendingAnimation) return;
+            await startAnimation(pendingAnimation, scenarioId);
         }
 
         function stopAnimation() {
@@ -876,12 +1064,18 @@ DISPLAY_TEMPLATE = """
             if (e.target.id === 'palette') closePalette();
         });
 
+        document.getElementById('scenarioPalette').addEventListener('click', (e) => {
+            if (e.target.id === 'scenarioPalette') closeScenarioPalette();
+        });
+
         document.addEventListener('keydown', (e) => {
             const paletteOpen = document.getElementById('palette').classList.contains('active');
+            const scenarioPaletteOpen = document.getElementById('scenarioPalette').classList.contains('active');
 
             // Cmd+K or Ctrl+K to open palette
             if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
                 e.preventDefault();
+                if (scenarioPaletteOpen) return;
                 if (paletteOpen) closePalette();
                 else openPalette();
                 return;
@@ -889,17 +1083,36 @@ DISPLAY_TEMPLATE = """
 
             // B to go back to selector
             if (e.key === 'b' || e.key === 'B') {
-                if (!paletteOpen) {
+                if (!paletteOpen && !scenarioPaletteOpen) {
                     window.location.href = '/';
                     return;
                 }
             }
 
             if (e.key === 'Escape') {
-                if (paletteOpen) {
+                if (scenarioPaletteOpen) {
+                    closeScenarioPalette();
+                } else if (paletteOpen) {
                     closePalette();
                 } else {
                     stopAnimation();
+                }
+                return;
+            }
+
+            // handle scenario palette navigation
+            if (scenarioPaletteOpen) {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    scenarioIndex = Math.min(scenarios.length - 1, scenarioIndex + 1);
+                    renderScenarioResults();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    scenarioIndex = Math.max(0, scenarioIndex - 1);
+                    renderScenarioResults();
+                } else if (e.key === 'Enter' && scenarios.length > 0) {
+                    e.preventDefault();
+                    selectScenario(scenarios[scenarioIndex].id);
                 }
                 return;
             }
@@ -939,18 +1152,49 @@ def api_animations():
 def api_status():
     return jsonify({
         'current': current_animation,
+        'scenario': current_scenario,
         'running': current_process is not None and current_process.poll() is None
     })
 
 
+@app.route('/api/scenarios/<name>')
+def api_scenarios(name):
+    """Get available scenarios for an animation."""
+    if name in SCENARIO_ANIMATIONS:
+        return jsonify({
+            'scenarios': [
+                {'id': 'default', 'label': 'Default (countdown)'},
+                {'id': 'day-of', 'label': 'Day of celebration'},
+                {'id': 'countdown:1', 'label': '1 day countdown'},
+                {'id': 'countdown:2', 'label': '2 days countdown'},
+                {'id': 'countdown:3', 'label': '3 days countdown'},
+                {'id': 'countdown:5', 'label': '5 days countdown'},
+                {'id': 'countdown:7', 'label': '7 days countdown'},
+            ]
+        })
+    return jsonify({'scenarios': []})
+
+
 @app.route('/api/start/<name>', methods=['POST'])
 def api_start(name):
+    from flask import request
     animations = discover_animations()
     if name not in animations:
         return jsonify({'success': False, 'error': 'Unknown animation'}), 404
 
-    success = start_animation(name)
-    return jsonify({'success': success, 'current': current_animation})
+    # get optional scenario from request
+    scenario = None
+    if request.is_json:
+        scenario = request.json.get('scenario')
+    elif request.form:
+        scenario = request.form.get('scenario')
+
+    # 'default' means no scenario
+    if scenario == 'default':
+        scenario = None
+
+    success = start_animation(name, scenario)
+    return jsonify({'success': success, 'current': current_animation, 'scenario': current_scenario})
 
 
 @app.route('/api/stop', methods=['POST'])

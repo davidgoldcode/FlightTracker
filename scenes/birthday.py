@@ -6,16 +6,34 @@ from setup import colours, frames, fonts
 from rgbmatrix import graphics
 
 
+# default countdown days (can be overridden per person)
+DEFAULT_COUNTDOWN_DAYS = 3
+
 # try to load birthday config
 def _load_birthday_config():
     try:
-        from config import MY_BIRTHDAY, PARTNER_BIRTHDAY, OTHER_BIRTHDAYS
+        from config import MY_BIRTHDAY, PARTNER_BIRTHDAY
         birthdays = {"Me": MY_BIRTHDAY, "Partner": PARTNER_BIRTHDAY}
+    except (ImportError, NameError):
+        birthdays = {}
+
+    try:
+        from config import OTHER_BIRTHDAYS
         if isinstance(OTHER_BIRTHDAYS, dict):
             birthdays.update(OTHER_BIRTHDAYS)
-        return birthdays
     except (ImportError, NameError):
-        return {}
+        pass
+
+    return birthdays
+
+
+def _load_countdown_days():
+    try:
+        from config import BIRTHDAY_COUNTDOWN_DAYS
+        return BIRTHDAY_COUNTDOWN_DAYS
+    except (ImportError, NameError):
+        return DEFAULT_COUNTDOWN_DAYS
+
 
 def _is_demo_mode():
     """Check if running in test/demo mode (no config or testing)."""
@@ -25,7 +43,9 @@ def _is_demo_mode():
     except (ImportError, NameError):
         return True  # no config, demo mode
 
+
 BIRTHDAYS = _load_birthday_config()
+COUNTDOWN_DAYS = _load_countdown_days()
 DEMO_MODE = _is_demo_mode()
 
 # cake pixels (simple 8x7 cake with candle)
@@ -84,13 +104,61 @@ class BirthdayScene(object):
         self._scroll_x = 64
         self._last_birthday_pixels = []
         self._flame_phase = 0
+        # for testing scenarios
+        self._scenario_days = None  # None = use real date, number = simulate X days until
 
-    def _check_birthday(self):
+    def _get_birthday_info(self, name, date_val):
+        """Get birthday date and countdown days for a person.
+
+        date_val can be:
+        - a string like "03-15" (uses global countdown days)
+        - a dict like {"date": "03-15", "countdown": 5} (custom countdown)
+        """
+        if isinstance(date_val, dict):
+            date = date_val.get("date", "")
+            countdown = date_val.get("countdown", COUNTDOWN_DAYS)
+        else:
+            date = date_val
+            countdown = COUNTDOWN_DAYS
+        return date, countdown
+
+    def _get_days_until(self, date_str):
+        """Calculate days until a birthday."""
+        today = datetime.now()
+        try:
+            month, day = map(int, date_str.split("-"))
+            birthday_this_year = datetime(today.year, month, day)
+            if birthday_this_year.date() < today.date():
+                birthday_this_year = datetime(today.year + 1, month, day)
+            delta = birthday_this_year.date() - today.date()
+            return delta.days
+        except (ValueError, AttributeError):
+            return None
+
+    def _check_birthday_or_countdown(self):
+        """Check if today is someone's birthday OR within countdown range.
+
+        Returns: (name, days_until, is_today) or (None, None, False)
+        """
         today = datetime.now().strftime("%m-%d")
-        for name, date in BIRTHDAYS.items():
+
+        for name, date_val in BIRTHDAYS.items():
+            date, countdown_days = self._get_birthday_info(name, date_val)
+
+            if not date:
+                continue
+
+            # check if today is the birthday
             if date == today:
-                return name
-        return None
+                return (name, 0, True)
+
+            # check countdown (only for OTHER_BIRTHDAYS, not Me/Partner)
+            if name not in ("Me", "Partner") and countdown_days > 0:
+                days = self._get_days_until(date)
+                if days is not None and 0 < days <= countdown_days:
+                    return (name, days, False)
+
+        return (None, None, False)
 
     @Animator.KeyFrame.add(1)
     def birthday(self, count):
@@ -102,12 +170,20 @@ class BirthdayScene(object):
                 self._last_birthday_pixels = []
             return
 
-        # check if today is someone's birthday (or demo mode)
+        # check for birthday or countdown
         if DEMO_MODE:
-            name = "Demo"
+            # demo mode: simulate scenario
+            if self._scenario_days is not None:
+                if self._scenario_days == 0:
+                    name, days, is_today = "Mom", 0, True
+                else:
+                    name, days, is_today = "Mom", self._scenario_days, False
+            else:
+                # default demo: show countdown
+                name, days, is_today = "Demo", 3, False
         else:
-            name = self._check_birthday()
-            if not name:
+            name, days, is_today = self._check_birthday_or_countdown()
+            if name is None:
                 return
 
         drawn_pixels = []
@@ -116,10 +192,22 @@ class BirthdayScene(object):
         for px, py in self._last_birthday_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
+        self._flame_phase += 0.3
+
+        if is_today:
+            # celebration mode - full animation
+            self._draw_celebration(drawn_pixels, name)
+        else:
+            # countdown mode
+            self._draw_countdown(drawn_pixels, name, days)
+
+        self._last_birthday_pixels = drawn_pixels
+
+    def _draw_celebration(self, drawn_pixels, name):
+        """Draw full birthday celebration with cake and confetti."""
         # draw cake (bottom left)
         cake_x = 4
         cake_y = 24
-        self._flame_phase += 0.3
         for (cx, cy), (r, g, b) in CAKE_PIXELS:
             px = cake_x + cx
             py = cake_y + cy
@@ -170,4 +258,37 @@ class BirthdayScene(object):
                 self.canvas.SetPixel(px, py, r, g, b)
                 drawn_pixels.append((px, py))
 
-        self._last_birthday_pixels = drawn_pixels
+    def _draw_countdown(self, drawn_pixels, name, days):
+        """Draw birthday countdown display."""
+        # draw small cake icon (top right corner)
+        cake_x = 52
+        cake_y = 2
+        for (cx, cy), (r, g, b) in CAKE_PIXELS:
+            px = cake_x + cx
+            py = cake_y + cy
+            if 0 <= px < 64 and 0 <= py < 32:
+                # flicker the flame
+                if cy == 0:
+                    flicker = 0.7 + 0.3 * math.sin(self._flame_phase)
+                    r = int(r * flicker)
+                    g = int(g * flicker)
+                # draw smaller/dimmer
+                self.canvas.SetPixel(px, py, r // 2, g // 2, b // 2)
+                drawn_pixels.append((px, py))
+
+        # line 1: "X days until"
+        day_word = "day" if days == 1 else "days"
+        line1 = f"{days} {day_word} until"
+        line1_color = graphics.Color(255, 150, 200)
+        graphics.DrawText(self.canvas, fonts.extrasmall, 2, 12, line1_color, line1)
+        for x in range(2, min(64, 2 + len(line1) * 5)):
+            for y in range(6, 14):
+                drawn_pixels.append((x, y))
+
+        # line 2: "Name's bday"
+        line2 = f"{name}'s bday"
+        line2_color = graphics.Color(255, 200, 100)
+        graphics.DrawText(self.canvas, fonts.extrasmall, 2, 24, line2_color, line2)
+        for x in range(2, min(64, 2 + len(line2) * 5)):
+            for y in range(18, 26):
+                drawn_pixels.append((x, y))

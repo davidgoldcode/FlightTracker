@@ -52,6 +52,9 @@ class AnniversaryScene(object):
         self._confetti = [Confetti() for _ in range(25)]
         self._last_anniversary_pixels = []
         self._heart_phase = 0
+        self._anniversary_scroll_x = 64  # for scrolling text
+        # for testing scenarios
+        self._scenario_days = None  # None = use real date, number = simulate X days until
 
     def _get_days_until(self):
         if not ANNIVERSARY_DATE:
@@ -84,9 +87,12 @@ class AnniversaryScene(object):
                 self._last_anniversary_pixels = []
             return
 
-        # in demo mode, always show countdown animation
+        # in demo mode, simulate scenario or default countdown
         if DEMO_MODE:
-            days = 5  # simulate 5 days until anniversary
+            if self._scenario_days is not None:
+                days = self._scenario_days
+            else:
+                days = 5  # default demo: 5 days until anniversary
         else:
             if not ANNIVERSARY_DATE:
                 return
@@ -107,10 +113,11 @@ class AnniversaryScene(object):
 
         self._heart_phase += 0.1
 
-        if self._is_anniversary_today():
-            # celebration mode - full confetti and message
+        # check if it's the anniversary day (real check or scenario)
+        is_today = self._is_anniversary_today() or (DEMO_MODE and days == 0)
+        if is_today:
+            # celebration mode - full confetti and scrolling message
             message = "Happy Anniversary!"
-            text_color = graphics.Color(255, 150, 200)
 
             # pulsing text
             pulse = 0.7 + 0.3 * math.sin(self._heart_phase)
@@ -120,13 +127,25 @@ class AnniversaryScene(object):
                 int(200 * pulse)
             )
 
-            # center text
-            text_width = len(message) * 4
-            x = (64 - text_width) // 2
-            graphics.DrawText(self.canvas, fonts.extrasmall, x, 16, text_color, message)
-            for tx in range(x, min(64, x + text_width)):
-                for ty in range(10, 18):
-                    drawn_pixels.append((tx, ty))
+            # scrolling text (too long to fit on 64px display)
+            graphics.DrawText(
+                self.canvas,
+                fonts.extrasmall,
+                int(self._anniversary_scroll_x),
+                16,
+                text_color,
+                message
+            )
+            # mark text area as drawn
+            for tx in range(int(self._anniversary_scroll_x), min(64, int(self._anniversary_scroll_x) + len(message) * 5)):
+                if 0 <= tx < 64:
+                    for ty in range(10, 18):
+                        drawn_pixels.append((tx, ty))
+
+            # scroll the text
+            self._anniversary_scroll_x -= 0.5
+            if self._anniversary_scroll_x < -len(message) * 5:
+                self._anniversary_scroll_x = 64
 
             # lots of confetti
             for conf in self._confetti:
@@ -146,7 +165,8 @@ class AnniversaryScene(object):
 
         else:
             # countdown mode
-            message = f"{days} days"
+            day_word = "day" if days == 1 else "days"
+            message = f"{days} {day_word}"
             text_color = graphics.Color(255, 150, 200)
 
             # draw countdown
