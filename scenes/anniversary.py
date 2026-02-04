@@ -56,7 +56,7 @@ class AnniversaryScene(object):
         # for testing scenarios
         self._scenario_days = None  # None = use real date, number = simulate X days until
 
-    def _get_days_until(self):
+    def _anniversary_get_days_until(self):
         if not ANNIVERSARY_DATE:
             return None
 
@@ -109,7 +109,7 @@ class AnniversaryScene(object):
             if not ANNIVERSARY_DATE:
                 return
 
-            days = self._get_days_until()
+            days = self._anniversary_get_days_until()
             if days is None:
                 return
 
