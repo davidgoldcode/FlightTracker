@@ -73,6 +73,11 @@ except (ModuleNotFoundError, NameError, ImportError):
     # If there's no experimental config data
     LOADING_LED_ENABLED = False
 
+try:
+    from config import LED_RGB_SEQUENCE
+except (ModuleNotFoundError, NameError, ImportError):
+    LED_RGB_SEQUENCE = "RGB"
+
 
 class Display(
     WeatherScene,
@@ -120,7 +125,7 @@ class Display(
         options.pwm_bits = 11
         options.brightness = BRIGHTNESS
         options.pwm_lsb_nanoseconds = 130
-        options.led_rgb_sequence = "RGB"
+        options.led_rgb_sequence = LED_RGB_SEQUENCE
         options.pixel_mapper_config = ""
         options.show_refresh_rate = 0
         options.gpio_slowdown = GPIO_SLOWDOWN

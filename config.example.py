@@ -30,6 +30,7 @@ TEMPERATURE_UNITS = "imperial"  # or "metric"
 JOURNEY_BLANK_FILLER = " ? "
 HAT_PWM_ENABLED = False
 HARDWARE_PULSE = False
+LED_RGB_SEQUENCE = "RGB"  # try "BGR" or "GRB" if colors look wrong
 
 # =============================================================================
 # API KEYS
