@@ -127,9 +127,22 @@ class BirthdayScene(object):
         today = datetime.now()
         try:
             month, day = map(int, date_str.split("-"))
-            birthday_this_year = datetime(today.year, month, day)
+            year = today.year
+
+            # handle Feb 29 on non-leap years (use Feb 28)
+            if month == 2 and day == 29:
+                import calendar
+                if not calendar.isleap(year):
+                    day = 28
+
+            birthday_this_year = datetime(year, month, day)
             if birthday_this_year.date() < today.date():
-                birthday_this_year = datetime(today.year + 1, month, day)
+                year += 1
+                # check leap year again for next year
+                if month == 2 and day == 29 and not calendar.isleap(year):
+                    day = 28
+                birthday_this_year = datetime(year, month, day)
+
             delta = birthday_this_year.date() - today.date()
             return delta.days
         except (ValueError, AttributeError):
