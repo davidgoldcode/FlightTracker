@@ -79,7 +79,7 @@ class HalloweenScene(object):
         self._ghosts = [Ghost() for _ in range(3)]
         self._bats = [Bat() for _ in range(5)]
         self._last_halloween_pixels = []
-        self._phase = 0
+        self._halloween_phase = 0
 
     def _is_halloween(self):
         if DEMO_MODE:
@@ -112,14 +112,14 @@ class HalloweenScene(object):
         for px, py in self._last_halloween_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
-        self._phase += 0.1
+        self._halloween_phase += 0.1
 
         # draw purple/orange gradient sky at top
         for y in range(8):
             intensity = 1 - (y / 8)
             for x in range(64):
                 # alternating purple/orange glow
-                if (x + int(self._phase * 2)) % 20 < 10:
+                if (x + int(self._halloween_phase * 2)) % 20 < 10:
                     r, g, b = int(80 * intensity), int(20 * intensity), int(80 * intensity)
                 else:
                     r, g, b = int(50 * intensity), int(20 * intensity), int(10 * intensity)
@@ -194,7 +194,7 @@ class HalloweenScene(object):
 
         # "BOO!" text
         boo_x = 50
-        boo_pulse = 0.6 + 0.4 * math.sin(self._phase * 2)
+        boo_pulse = 0.6 + 0.4 * math.sin(self._halloween_phase * 2)
         text_color = graphics.Color(
             int(255 * boo_pulse),
             int(100 * boo_pulse),

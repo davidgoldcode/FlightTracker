@@ -62,7 +62,7 @@ class ValentinesScene(object):
         super().__init__()
         self._hearts = [Heart() for _ in range(20)]
         self._last_valentines_pixels = []
-        self._scroll_x = 64
+        self._valentines_scroll_x = 64
         self._pulse_phase = 0
 
     def _is_valentines_day(self):
@@ -126,20 +126,20 @@ class ValentinesScene(object):
         graphics.DrawText(
             self.canvas,
             fonts.extrasmall,
-            int(self._scroll_x),
+            int(self._valentines_scroll_x),
             18,
             text_color,
             message
         )
 
         # track text pixels
-        for x in range(int(self._scroll_x), min(64, int(self._scroll_x) + len(message) * 5)):
+        for x in range(int(self._valentines_scroll_x), min(64, int(self._valentines_scroll_x) + len(message) * 5)):
             if 0 <= x < 64:
                 for y in range(12, 20):
                     drawn_pixels.append((x, y))
 
-        self._scroll_x -= 0.5
-        if self._scroll_x < -len(message) * 5:
-            self._scroll_x = 64
+        self._valentines_scroll_x -= 0.5
+        if self._valentines_scroll_x < -len(message) * 5:
+            self._valentines_scroll_x = 64
 
         self._last_valentines_pixels = drawn_pixels

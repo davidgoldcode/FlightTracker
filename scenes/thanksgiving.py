@@ -56,7 +56,7 @@ class ThanksgivingScene(object):
         super().__init__()
         self._leaves = [Leaf() for _ in range(15)]
         self._last_thanksgiving_pixels = []
-        self._phase = 0
+        self._thanksgiving_phase = 0
 
     def _is_thanksgiving(self):
         if DEMO_MODE:
@@ -131,13 +131,13 @@ class ThanksgivingScene(object):
         for px, py in self._last_thanksgiving_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
-        self._phase += 0.08
+        self._thanksgiving_phase += 0.08
 
         # warm autumn gradient background
         for y in range(32):
             for x in range(64):
                 # warm orange/brown gradient
-                intensity = 0.15 + 0.03 * math.sin(self._phase + y * 0.15)
+                intensity = 0.15 + 0.03 * math.sin(self._thanksgiving_phase + y * 0.15)
                 r = int(180 * intensity)
                 g = int(100 * intensity)
                 b = int(50 * intensity)
@@ -169,7 +169,7 @@ class ThanksgivingScene(object):
 
         # "Give Thanks" text
         text = "Give Thanks"
-        pulse = 0.7 + 0.3 * math.sin(self._phase * 2)
+        pulse = 0.7 + 0.3 * math.sin(self._thanksgiving_phase * 2)
         text_color = graphics.Color(int(220 * pulse), int(150 * pulse), int(50 * pulse))
         x = (64 - len(text) * 4) // 2
         graphics.DrawText(self.canvas, fonts.extrasmall, x, 12, text_color, text)

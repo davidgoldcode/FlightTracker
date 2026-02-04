@@ -75,7 +75,7 @@ class NewYearScene(object):
         super().__init__()
         self._newyear_fireworks = [Firework() for _ in range(5)]
         self._last_newyear_pixels = []
-        self._phase = 0
+        self._newyear_phase = 0
         self._demo_countdown = 10  # for demo mode
 
     def _is_new_years_eve(self):
@@ -129,13 +129,13 @@ class NewYearScene(object):
         for px, py in self._last_newyear_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
-        self._phase += 0.15
+        self._newyear_phase += 0.15
 
         if countdown is not None and countdown > 0:
             # countdown mode
             # big number in center
             num_str = str(countdown)
-            pulse = 0.6 + 0.4 * math.sin(self._phase * 3)
+            pulse = 0.6 + 0.4 * math.sin(self._newyear_phase * 3)
             text_color = graphics.Color(
                 int(255 * pulse),
                 int(255 * pulse),
@@ -161,7 +161,7 @@ class NewYearScene(object):
             # celebration mode - fireworks!
             year = datetime.now().year + 1 if not DEMO_MODE else 2026
             msg = f"HAPPY {year}!"
-            pulse = 0.7 + 0.3 * math.sin(self._phase * 2)
+            pulse = 0.7 + 0.3 * math.sin(self._newyear_phase * 2)
             text_color = graphics.Color(
                 int(255 * pulse),
                 int(220 * pulse),

@@ -55,7 +55,7 @@ class StPatricksScene(object):
         super().__init__()
         self._shamrocks = [Shamrock() for _ in range(12)]
         self._last_stpatricks_pixels = []
-        self._phase = 0
+        self._stpatricks_phase = 0
 
     def _is_st_patricks(self):
         if DEMO_MODE:
@@ -86,11 +86,11 @@ class StPatricksScene(object):
         for px, py in self._last_stpatricks_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
-        self._phase += 0.1
+        self._stpatricks_phase += 0.1
 
         # green gradient background (subtle)
         for y in range(32):
-            intensity = 0.1 + 0.05 * math.sin(self._phase + y * 0.2)
+            intensity = 0.1 + 0.05 * math.sin(self._stpatricks_phase + y * 0.2)
             for x in range(64):
                 r = int(10 * intensity)
                 g = int(40 * intensity)
@@ -118,7 +118,7 @@ class StPatricksScene(object):
 
         # "Happy St. Patrick's Day!" scrolling text
         text = "Happy St. Patrick's Day!"
-        pulse = 0.7 + 0.3 * math.sin(self._phase * 2)
+        pulse = 0.7 + 0.3 * math.sin(self._stpatricks_phase * 2)
         text_color = graphics.Color(int(50 * pulse), int(200 * pulse), int(80 * pulse))
         x = (64 - len(text) * 4) // 2
         graphics.DrawText(self.canvas, fonts.extrasmall, x, 18, text_color, text)
@@ -142,7 +142,7 @@ class StPatricksScene(object):
             py = pot_y - 1
             px = pot_x + dx
             if 0 <= px < 64 and 0 <= py < 32:
-                twinkle = 0.6 + 0.4 * math.sin(self._phase * 3 + dx)
+                twinkle = 0.6 + 0.4 * math.sin(self._stpatricks_phase * 3 + dx)
                 self.canvas.SetPixel(px, py, int(255 * twinkle), int(200 * twinkle), int(50 * twinkle))
                 drawn_pixels.append((px, py))
 

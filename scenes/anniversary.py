@@ -49,7 +49,7 @@ class Confetti:
 class AnniversaryScene(object):
     def __init__(self):
         super().__init__()
-        self._confetti = [Confetti() for _ in range(25)]
+        self._anniversary_confetti = [Confetti() for _ in range(25)]
         self._last_anniversary_pixels = []
         self._heart_phase = 0
         self._anniversary_scroll_x = 64  # for scrolling text
@@ -160,7 +160,7 @@ class AnniversaryScene(object):
                 self._anniversary_scroll_x = 64
 
             # lots of confetti
-            for conf in self._confetti:
+            for conf in self._anniversary_confetti:
                 conf.y += conf.speed
                 conf.x += conf.drift
 

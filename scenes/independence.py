@@ -70,7 +70,7 @@ class IndependenceScene(object):
         self._independence_fireworks = [Firework() for _ in range(4)]
         self._independence_stars = [Star() for _ in range(20)]
         self._last_independence_pixels = []
-        self._phase = 0
+        self._independence_phase = 0
 
     def _is_independence_day(self):
         if DEMO_MODE:
@@ -101,7 +101,7 @@ class IndependenceScene(object):
         for px, py in self._last_independence_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
-        self._phase += 0.1
+        self._independence_phase += 0.1
 
         # dark blue sky background
         for y in range(32):
@@ -171,7 +171,7 @@ class IndependenceScene(object):
 
         # "USA!" text with wave
         text = "USA!"
-        wave_offset = int(math.sin(self._phase * 3) * 2)
+        wave_offset = int(math.sin(self._independence_phase * 3) * 2)
         text_colors = [
             graphics.Color(255, 50, 50),   # red
             graphics.Color(255, 255, 255), # white
@@ -180,7 +180,7 @@ class IndependenceScene(object):
         ]
         x_start = (64 - len(text) * 6) // 2
         for i, char in enumerate(text):
-            char_wave = int(math.sin(self._phase * 3 + i * 0.5) * 1)
+            char_wave = int(math.sin(self._independence_phase * 3 + i * 0.5) * 1)
             graphics.DrawText(self.canvas, fonts.extrasmall, x_start + i * 6, 24 + char_wave, text_colors[i % len(text_colors)], char)
 
         for tx in range(max(0, x_start), min(64, x_start + len(text) * 6)):

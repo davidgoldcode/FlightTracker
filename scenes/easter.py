@@ -62,7 +62,7 @@ class EasterScene(object):
         super().__init__()
         self._eggs = [Egg() for _ in range(8)]
         self._last_easter_pixels = []
-        self._phase = 0
+        self._easter_phase = 0
         self._bunny_hop = 0
 
     def _is_easter(self):
@@ -142,13 +142,13 @@ class EasterScene(object):
         for px, py in self._last_easter_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
-        self._phase += 0.1
+        self._easter_phase += 0.1
         self._bunny_hop += 0.15
 
         # pastel gradient background
         for y in range(32):
             for x in range(64):
-                intensity = 0.15 + 0.05 * math.sin(self._phase + y * 0.1)
+                intensity = 0.15 + 0.05 * math.sin(self._easter_phase + y * 0.1)
                 r = int(255 * intensity * 0.4)
                 g = int(230 * intensity * 0.4)
                 b = int(200 * intensity * 0.4)
@@ -184,7 +184,7 @@ class EasterScene(object):
 
         # "Happy Easter!" text
         text = "Happy Easter!"
-        pulse = 0.7 + 0.3 * math.sin(self._phase * 2)
+        pulse = 0.7 + 0.3 * math.sin(self._easter_phase * 2)
         text_color = graphics.Color(int(200 * pulse), int(150 * pulse), int(200 * pulse))
         x = (64 - len(text) * 4) // 2
         graphics.DrawText(self.canvas, fonts.extrasmall, x, 10, text_color, text)

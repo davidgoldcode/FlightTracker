@@ -83,7 +83,7 @@ class ChineseNewYearScene(object):
         self._lanterns = [Lantern(x * 12 + 6) for x in range(5)]
         self._cny_fireworks = [Firework() for _ in range(2)]
         self._last_cny_pixels = []
-        self._phase = 0
+        self._cny_phase = 0
 
     def _get_cny_info(self):
         """Return (is_cny, zodiac_animal) or (False, None)."""
@@ -180,12 +180,12 @@ class ChineseNewYearScene(object):
         for px, py in self._last_cny_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
-        self._phase += 0.1
+        self._cny_phase += 0.1
 
         # red background with subtle pattern
         for y in range(32):
             for x in range(64):
-                intensity = 0.2 + 0.05 * math.sin(self._phase * 0.5 + x * 0.1 + y * 0.1)
+                intensity = 0.2 + 0.05 * math.sin(self._cny_phase * 0.5 + x * 0.1 + y * 0.1)
                 r = int(200 * intensity)
                 g = int(30 * intensity)
                 b = int(30 * intensity)
@@ -233,7 +233,7 @@ class ChineseNewYearScene(object):
 
         # zodiac text at bottom
         text = f"Year of {zodiac}"
-        pulse = 0.7 + 0.3 * math.sin(self._phase * 2)
+        pulse = 0.7 + 0.3 * math.sin(self._cny_phase * 2)
         text_color = graphics.Color(int(255 * pulse), int(200 * pulse), int(50 * pulse))
         x = (64 - len(text) * 4) // 2
         graphics.DrawText(self.canvas, fonts.extrasmall, x, 28, text_color, text)

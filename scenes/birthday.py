@@ -100,8 +100,8 @@ class BirthdayScene(object):
     def __init__(self):
         super().__init__()
         self._birthday_name = None
-        self._confetti = [Confetti() for _ in range(30)]
-        self._scroll_x = 64
+        self._birthday_confetti = [Confetti() for _ in range(30)]
+        self._birthday_scroll_x = 64
         self._last_birthday_pixels = []
         self._flame_phase = 0
         # for testing scenarios
@@ -239,23 +239,23 @@ class BirthdayScene(object):
         graphics.DrawText(
             self.canvas,
             fonts.extrasmall,
-            int(self._scroll_x),
+            int(self._birthday_scroll_x),
             10,
             text_color,
             message
         )
         # mark text area as drawn
-        for x in range(int(self._scroll_x), min(64, int(self._scroll_x) + len(message) * 5)):
+        for x in range(int(self._birthday_scroll_x), min(64, int(self._birthday_scroll_x) + len(message) * 5)):
             if 0 <= x < 64:
                 for y in range(4, 12):
                     drawn_pixels.append((x, y))
 
-        self._scroll_x -= 0.5
-        if self._scroll_x < -len(message) * 5:
-            self._scroll_x = 64
+        self._birthday_scroll_x -= 0.5
+        if self._birthday_scroll_x < -len(message) * 5:
+            self._birthday_scroll_x = 64
 
         # draw confetti
-        for conf in self._confetti:
+        for conf in self._birthday_confetti:
             conf.y += conf.speed
             conf.x += conf.drift
             conf.spin += conf.spin_speed

@@ -41,7 +41,7 @@ class LoveMessagesScene(object):
     def __init__(self):
         super().__init__()
         self._message_index = 0
-        self._scroll_x = 64  # start off-screen right
+        self._lovemsg_scroll_x = 64  # start off-screen right
         self._pause_counter = 0
         self._current_message = MESSAGES[0]
         self._message_width = 0
@@ -70,7 +70,7 @@ class LoveMessagesScene(object):
         center_x = (64 - self._message_width) // 2
 
         # check if message is centered (pause)
-        if abs(self._scroll_x - center_x) < 2:
+        if abs(self._lovemsg_scroll_x - center_x) < 2:
             self._pause_counter += 1
             if self._pause_counter < PAUSE_FRAMES:
                 # draw message at center during pause
@@ -88,23 +88,23 @@ class LoveMessagesScene(object):
             self._pause_counter = 0
 
         # scroll left
-        self._scroll_x -= SCROLL_SPEED
+        self._lovemsg_scroll_x -= SCROLL_SPEED
 
         # draw message
         graphics.DrawText(
             self.canvas,
             fonts.extrasmall,
-            self._scroll_x,
+            self._lovemsg_scroll_x,
             MESSAGE_Y,
             MESSAGE_COLOR,
             self._current_message
         )
 
         # check if message scrolled off-screen left
-        if self._scroll_x < -self._message_width:
+        if self._lovemsg_scroll_x < -self._message_width:
             # next message
             self._message_index = (self._message_index + 1) % len(MESSAGES)
             self._current_message = MESSAGES[self._message_index]
             self._message_width = self._get_message_width(self._current_message)
-            self._scroll_x = 64  # reset to right side
+            self._lovemsg_scroll_x = 64  # reset to right side
             self._pause_counter = 0
