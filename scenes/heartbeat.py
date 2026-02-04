@@ -48,6 +48,11 @@ class HeartbeatScene(object):
                 self._last_heart_pixels = []
             return
 
+        # mutual exclusion - only one idle animation per frame
+        if self._idle_drawn_this_frame:
+            return
+        self._idle_drawn_this_frame = True
+
         # calculate pulse brightness using sine wave
         self._heart_phase += PULSE_SPEED
         if self._heart_phase > 2 * math.pi:

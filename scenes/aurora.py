@@ -56,6 +56,11 @@ class AuroraScene(object):
                 self._last_aurora_pixels = []
             return
 
+        # mutual exclusion - only one idle animation per frame
+        if self._idle_drawn_this_frame:
+            return
+        self._idle_drawn_this_frame = True
+
         if not self._aurora_initialized:
             self._init_aurora()
 

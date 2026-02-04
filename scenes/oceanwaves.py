@@ -34,6 +34,11 @@ class OceanWavesScene(object):
                 self._last_wave_pixels = []
             return
 
+        # mutual exclusion - only one idle animation per frame
+        if self._idle_drawn_this_frame:
+            return
+        self._idle_drawn_this_frame = True
+
         drawn_pixels = []
 
         # clear previous positions

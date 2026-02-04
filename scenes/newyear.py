@@ -116,6 +116,11 @@ class NewYearScene(object):
                 self._last_newyear_pixels = []
             return
 
+        # mutual exclusion - only one idle animation per frame
+        if self._idle_drawn_this_frame:
+            return
+        self._idle_drawn_this_frame = True
+
         if not self._is_new_years_eve():
             return
 

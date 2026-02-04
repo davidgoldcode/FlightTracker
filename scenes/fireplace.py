@@ -59,6 +59,11 @@ class FireplaceScene(object):
                 self._last_fire_pixels = []
             return
 
+        # mutual exclusion - only one idle animation per frame
+        if self._idle_drawn_this_frame:
+            return
+        self._idle_drawn_this_frame = True
+
         if not self._fire_initialized:
             self._init_fire()
 

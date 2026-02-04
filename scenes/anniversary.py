@@ -99,6 +99,11 @@ class AnniversaryScene(object):
                 self._last_anniversary_pixels = []
             return
 
+        # mutual exclusion - only one idle animation per frame
+        if self._idle_drawn_this_frame:
+            return
+        self._idle_drawn_this_frame = True
+
         # in demo mode, simulate scenario or default countdown
         if DEMO_MODE:
             if self._scenario_days is not None:

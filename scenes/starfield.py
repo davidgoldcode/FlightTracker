@@ -72,6 +72,11 @@ class StarfieldScene(object):
                 self._last_star_pixels = []
             return
 
+        # mutual exclusion - only one idle animation per frame
+        if self._idle_drawn_this_frame:
+            return
+        self._idle_drawn_this_frame = True
+
         # initialize stars on first run
         if not self._starfield_initialized:
             self._init_stars()

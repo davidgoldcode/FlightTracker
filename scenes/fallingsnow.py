@@ -47,6 +47,11 @@ class FallingSnowScene(object):
                 self._last_snow_pixels = []
             return
 
+        # mutual exclusion - only one idle animation per frame
+        if self._idle_drawn_this_frame:
+            return
+        self._idle_drawn_this_frame = True
+
         # initialize on first run
         if not self._snow_initialized:
             self._init_snow()

@@ -84,6 +84,11 @@ class ChristmasScene(object):
                 self._last_christmas_pixels = []
             return
 
+        # mutual exclusion - only one idle animation per frame
+        if self._idle_drawn_this_frame:
+            return
+        self._idle_drawn_this_frame = True
+
         if not self._is_christmas():
             return
 

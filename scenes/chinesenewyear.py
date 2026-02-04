@@ -171,6 +171,11 @@ class ChineseNewYearScene(object):
                 self._last_cny_pixels = []
             return
 
+        # mutual exclusion - only one idle animation per frame
+        if self._idle_drawn_this_frame:
+            return
+        self._idle_drawn_this_frame = True
+
         is_cny, zodiac = self._get_cny_info()
         if not is_cny:
             return

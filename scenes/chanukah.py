@@ -156,6 +156,11 @@ class ChanukahScene(object):
                 self._last_chanukah_pixels = []
             return
 
+        # mutual exclusion - only one idle animation per frame
+        if self._idle_drawn_this_frame:
+            return
+        self._idle_drawn_this_frame = True
+
         night = self._get_chanukah_night()
         if night == 0:
             return

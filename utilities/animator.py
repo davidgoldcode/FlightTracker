@@ -18,6 +18,8 @@ class Animator(object):
         self.frame = 0
         self._delay = DELAY_DEFAULT
         self._reset_scene = True
+        # mutual exclusion: only one idle animation draws per frame
+        self._idle_drawn_this_frame = False
 
         self._register_keyframes()
 
@@ -37,6 +39,9 @@ class Animator(object):
 
     def play(self):
         while True:
+            # reset idle animation flag each frame
+            self._idle_drawn_this_frame = False
+
             for keyframe in self.keyframes:
                 # If divisor == 0 then only run once on first loop
                 if self.frame == 0:

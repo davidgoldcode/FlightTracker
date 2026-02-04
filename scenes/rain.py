@@ -51,6 +51,11 @@ class RainScene(object):
                 self._last_rain_pixels = []
             return
 
+        # mutual exclusion - only one idle animation per frame
+        if self._idle_drawn_this_frame:
+            return
+        self._idle_drawn_this_frame = True
+
         if not self._rain_initialized:
             self._init_rain()
 

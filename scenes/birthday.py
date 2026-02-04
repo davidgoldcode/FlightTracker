@@ -183,6 +183,11 @@ class BirthdayScene(object):
                 self._last_birthday_pixels = []
             return
 
+        # mutual exclusion - only one idle animation per frame
+        if self._idle_drawn_this_frame:
+            return
+        self._idle_drawn_this_frame = True
+
         # check for birthday or countdown
         if DEMO_MODE:
             # demo mode: simulate scenario

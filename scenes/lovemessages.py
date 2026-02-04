@@ -56,6 +56,11 @@ class LoveMessagesScene(object):
         if len(self._data):
             return
 
+        # mutual exclusion - only one idle animation per frame
+        if self._idle_drawn_this_frame:
+            return
+        self._idle_drawn_this_frame = True
+
         # clear previous message area
         for x in range(64):
             for y in range(MESSAGE_Y - 6, MESSAGE_Y + 2):
