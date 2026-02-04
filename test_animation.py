@@ -17,7 +17,19 @@ sys.modules['rgbmatrix'].RGBMatrix = RGBMatrix
 sys.modules['rgbmatrix'].RGBMatrixOptions = RGBMatrixOptions
 sys.modules['rgbmatrix'].graphics = graphics
 
-print("\n✨ Animation Tester")
+# force demo mode by removing config module so scenes fall back to demo mode
+# this ensures all animations render even if config has holidays disabled
+if 'config' in sys.modules:
+    del sys.modules['config']
+
+# create a fake config that raises ImportError to trigger demo mode
+class FakeConfigModule:
+    def __getattr__(self, name):
+        raise ImportError("Demo mode - no config")
+
+sys.modules['config'] = FakeConfigModule()
+
+print("\n✨ Animation Tester (Demo Mode)")
 print("   Open http://localhost:8888 in your browser\n")
 
 from utilities.animator import Animator

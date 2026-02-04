@@ -357,6 +357,8 @@ HTML_TEMPLATE = """
                 selectedIndex = animationNames.indexOf(name);
                 closePalette();
                 if (navigateAfter) {
+                    // wait a moment for emulator to start before navigating
+                    await new Promise(r => setTimeout(r, 500));
                     window.location.href = '/display';
                 }
             }
@@ -564,6 +566,35 @@ DISPLAY_TEMPLATE = """
             width: 100vw;
             height: 100vh;
         }
+        iframe.hidden { display: none; }
+
+        /* Loading state */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #6e7681;
+            gap: 16px;
+        }
+        .loading.hidden { display: none; }
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #21262d;
+            border-top-color: #58a6ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 
         /* Command palette overlay */
         .palette-overlay {
@@ -678,7 +709,11 @@ DISPLAY_TEMPLATE = """
     </style>
 </head>
 <body>
-    <iframe src="http://localhost:8888" id="ledFrame"></iframe>
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <div>Starting animation...</div>
+    </div>
+    <iframe id="ledFrame" class="hidden"></iframe>
 
     <div class="hint" id="hint">
         <kbd>⌘K</kbd> animations | <kbd>Esc</kbd> stop | <kbd>B</kbd> back
@@ -702,6 +737,7 @@ DISPLAY_TEMPLATE = """
         let currentAnimation = null;
         let paletteIndex = 0;
         let filteredNames = [];
+        let emulatorReady = false;
 
         // load animations from API
         fetch('/api/animations')
@@ -723,6 +759,35 @@ DISPLAY_TEMPLATE = """
         updateStatus();
         setInterval(updateStatus, 2000);
 
+        // wait for emulator to be ready on port 8888
+        async function waitForEmulator(maxRetries = 20) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch('http://localhost:8888/', { mode: 'no-cors' });
+                    return true;
+                } catch (e) {
+                    await new Promise(r => setTimeout(r, 250));
+                }
+            }
+            return false;
+        }
+
+        async function loadEmulator() {
+            const ready = await waitForEmulator();
+            if (ready) {
+                document.getElementById('loading').classList.add('hidden');
+                const iframe = document.getElementById('ledFrame');
+                iframe.src = 'http://localhost:8888';
+                iframe.classList.remove('hidden');
+                emulatorReady = true;
+            } else {
+                document.querySelector('.loading div:last-child').textContent =
+                    'No animation running. Press ⌘K to select one.';
+            }
+        }
+
+        loadEmulator();
+
         function selectAnimation(name) {
             fetch('/api/start/' + encodeURIComponent(name), { method: 'POST' })
                 .then(r => r.json())
@@ -730,6 +795,10 @@ DISPLAY_TEMPLATE = """
                     if (data.success) {
                         currentAnimation = name;
                         closePalette();
+                        // reload emulator after animation change
+                        document.getElementById('loading').classList.remove('hidden');
+                        document.getElementById('ledFrame').classList.add('hidden');
+                        loadEmulator();
                     }
                 });
         }
