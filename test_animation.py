@@ -36,6 +36,7 @@ try:
     USE_EMULATOR = True
 except ImportError:
     # on Pi, use real hardware
+    from rgbmatrix import RGBMatrix, RGBMatrixOptions, graphics
     USE_EMULATOR = False
 
 # force demo mode by removing config module so scenes fall back to demo mode
