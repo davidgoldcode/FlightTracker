@@ -118,6 +118,7 @@ ANIMATIONS = {
     'thanksgiving': 'scenes.thanksgiving.ThanksgivingScene',
     'chinesenewyear': 'scenes.chinesenewyear.ChineseNewYearScene',
     'planeintro': 'scenes.planeintro.PlaneIntroScene',
+    'bearingindicator': 'scenes.bearingindicator.BearingIndicatorScene',
 }
 
 # animations that support scenarios
