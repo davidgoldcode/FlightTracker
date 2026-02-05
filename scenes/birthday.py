@@ -106,6 +106,7 @@ class BirthdayScene(object):
         self._flame_phase = 0
         # for testing scenarios
         self._scenario_days = None  # None = use real date, number = simulate X days until
+        self._scenario_name = None  # None = use default demo name
 
     def _get_birthday_info(self, name, date_val):
         """Get birthday date and countdown days for a person.
@@ -191,14 +192,16 @@ class BirthdayScene(object):
         # check for birthday or countdown
         if DEMO_MODE:
             # demo mode: simulate scenario
+            demo_name = self._scenario_name or "Mom"
             if self._scenario_days is not None:
                 if self._scenario_days == 0:
-                    name, days, is_today = "Mom", 0, True
+                    name, days, is_today = demo_name, 0, True
                 else:
-                    name, days, is_today = "Mom", self._scenario_days, False
+                    name, days, is_today = demo_name, self._scenario_days, False
             else:
                 # default demo: show countdown
-                name, days, is_today = "Demo", 3, False
+                demo_name = self._scenario_name or "Demo"
+                name, days, is_today = demo_name, 3, False
         else:
             name, days, is_today = self._check_birthday_or_countdown()
             if name is None:

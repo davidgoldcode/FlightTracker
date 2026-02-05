@@ -1,30 +1,41 @@
 #!/usr/bin/env python3
 """
-Test individual animations in isolation with scenario support.
+Test individual animations in isolation with scenario and name support.
 
 Usage:
     python test_animation.py <animation>
     python test_animation.py <animation> --scenario=<scenario>
+    python test_animation.py <animation> --scenario=<scenario> --name=<name>
 
 Scenarios (for birthday/anniversary):
     --scenario=day-of       Show the "day of" celebration
     --scenario=countdown:N  Show N days countdown (e.g., countdown:3)
 
+Names (for birthday):
+    --name=<name>           Name to display (e.g., --name=Ila)
+
 Examples:
     python test_animation.py birthday
     python test_animation.py birthday --scenario=day-of
-    python test_animation.py birthday --scenario=countdown:1
+    python test_animation.py birthday --scenario=day-of --name=Ila
+    python test_animation.py birthday --scenario=countdown:1 --name="David's Mom"
     python test_animation.py anniversary --scenario=countdown:5
 """
 import sys
 
-# parse scenario arg before other imports
+# parse optional args before other imports
 scenario = None
+name_arg = None
+args_to_remove = []
 for arg in sys.argv[1:]:
     if arg.startswith('--scenario='):
         scenario = arg.split('=', 1)[1]
-        sys.argv.remove(arg)
-        break
+        args_to_remove.append(arg)
+    elif arg.startswith('--name='):
+        name_arg = arg.split('=', 1)[1]
+        args_to_remove.append(arg)
+for arg in args_to_remove:
+    sys.argv.remove(arg)
 
 # try emulator first (Mac), fall back to real hardware (Pi)
 try:
@@ -58,6 +69,8 @@ else:
     print("   Running on LED hardware")
 if scenario:
     print(f"   Scenario: {scenario}")
+if name_arg:
+    print(f"   Name: {name_arg}")
 print()
 
 from utilities.animator import Animator
@@ -95,6 +108,9 @@ ANIMATIONS = {
 
 # animations that support scenarios
 SCENARIO_ANIMATIONS = {'birthday', 'anniversary'}
+
+# animations that support --name
+NAME_ANIMATIONS = {'birthday'}
 
 
 def parse_scenario(scenario_str):
@@ -138,11 +154,13 @@ def get_scene_class(name):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python test_animation.py <animation> [--scenario=<scenario>]")
+        print("Usage: python test_animation.py <animation> [--scenario=<scenario>] [--name=<name>]")
         print(f"\nAvailable animations: {', '.join(sorted(ANIMATIONS.keys()))}")
         print("\nScenarios (for birthday/anniversary):")
         print("  --scenario=day-of       Show the celebration")
         print("  --scenario=countdown:N  Show N days countdown")
+        print("\nNames (for birthday):")
+        print("  --name=<name>           Name to display (e.g., --name=Ila)")
         sys.exit(1)
 
     animation_name = sys.argv[1]
@@ -151,9 +169,11 @@ def main():
     # parse scenario
     scenario_type, scenario_value = parse_scenario(scenario)
 
-    # warn if scenario used with non-supporting animation
+    # warn if args used with non-supporting animations
     if scenario and animation_name not in SCENARIO_ANIMATIONS:
         print(f"Warning: {animation_name} doesn't support scenarios, ignoring --scenario")
+    if name_arg and animation_name not in NAME_ANIMATIONS:
+        print(f"Warning: {animation_name} doesn't support --name, ignoring")
 
     # create minimal display with just this animation
     class TestDisplay(SceneClass, Animator):
@@ -185,9 +205,11 @@ def main():
             super().__init__()
             self.delay = frames.PERIOD
 
-            # apply scenario after init
+            # apply scenario and name after init
             if animation_name in SCENARIO_ANIMATIONS and scenario_type:
                 self._apply_scenario(scenario_type, scenario_value)
+            if animation_name in NAME_ANIMATIONS and name_arg:
+                self._scenario_name = name_arg
 
         def _apply_scenario(self, stype, svalue):
             """Apply scenario to the display."""
