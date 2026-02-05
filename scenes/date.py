@@ -22,8 +22,13 @@ class DateScene(object):
             # Ensure redraw when there's new data
             self._last_date = None
 
+        elif self._idle_drawn_this_frame:
+            # An idle animation (holiday, ambient) is active - don't draw date
+            # The idle animation owns the whole screen
+            self._last_date = None
+
         else:
-            # If there's no data to display
+            # If there's no data to display and no idle animation active
             # then draw the date
             now = datetime.now()
             current_date = now.strftime("%a %b %-d")
