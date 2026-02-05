@@ -1,6 +1,82 @@
 import random
+import time
+import json
+import urllib.request
+from datetime import datetime
 from utilities.animator import Animator
 from setup import frames
+
+
+def _is_demo_mode():
+    try:
+        from config import ZONE_HOME
+        return False
+    except (ImportError, NameError):
+        return True
+
+DEMO_MODE = _is_demo_mode()
+
+# morning hours when snow animation can show
+MORNING_START = 5
+MORNING_END = 10
+
+# weather check cache
+_weather_cache = {"is_snowing": False, "checked_at": 0}
+WEATHER_CACHE_SECONDS = 1800  # 30 minutes
+
+
+def _check_snow_from_api():
+    """Query OpenWeather API for snow conditions."""
+    try:
+        from config import WEATHER_LOCATION, OPENWEATHER_API_KEY
+        if not OPENWEATHER_API_KEY:
+            return _check_snow_from_temperature()
+
+        url = (
+            "https://api.openweathermap.org/data/2.5/weather?q="
+            + WEATHER_LOCATION
+            + "&appid="
+            + OPENWEATHER_API_KEY
+            + "&units=metric"
+        )
+        request = urllib.request.Request(url)
+        raw_data = urllib.request.urlopen(request, timeout=3).read()
+        data = json.loads(raw_data.decode("utf-8"))
+
+        for condition in data.get("weather", []):
+            if condition.get("main", "").lower() == "snow":
+                return True
+        return False
+
+    except Exception:
+        return _check_snow_from_temperature()
+
+
+def _check_snow_from_temperature():
+    """Temperature-based heuristic for snow (fallback when no API key)."""
+    try:
+        from scenes.weather import grab_current_temperature
+        from config import WEATHER_LOCATION
+        temp = grab_current_temperature(WEATHER_LOCATION, "metric")
+        return temp is not None and temp <= 2
+    except Exception:
+        return False
+
+
+def _is_snowy_morning():
+    """Check if it's morning and weather reports snow."""
+    now = datetime.now()
+    if not (MORNING_START <= now.hour < MORNING_END):
+        return False
+
+    # use cached result if fresh enough
+    if time.time() - _weather_cache["checked_at"] < WEATHER_CACHE_SECONDS:
+        return _weather_cache["is_snowing"]
+
+    # refresh cache
+    _weather_cache["is_snowing"] = _check_snow_from_api()
+    _weather_cache["checked_at"] = time.time()
+    return _weather_cache["is_snowing"]
 
 
 # snow settings
@@ -45,6 +121,10 @@ class FallingSnowScene(object):
                 for px, py in self._last_snow_pixels:
                     self.canvas.SetPixel(px, py, 0, 0, 0)
                 self._last_snow_pixels = []
+            return
+
+        # only show on snowy mornings (or always in demo mode)
+        if not DEMO_MODE and not _is_snowy_morning():
             return
 
         # mutual exclusion - only one idle animation per frame
