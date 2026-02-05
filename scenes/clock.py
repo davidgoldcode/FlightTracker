@@ -36,7 +36,7 @@ class ClockScene(object):
             # Only draw if time needs updated
             if self._last_time != current_time:
                 # Undraw last time if different from current
-                if not self._last_time is None:
+                if self._last_time is not None:
                     _ = graphics.DrawText(
                         self.canvas,
                         CLOCK_FONT,
