@@ -138,6 +138,7 @@ class Display(
         # Data to render
         self._data_index = 0
         self._data = []
+        self._data_all_looped = False
 
         # Start Looking for planes
         self.overhead = Overhead()
