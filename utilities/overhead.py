@@ -34,6 +34,40 @@ except (ModuleNotFoundError, NameError, ImportError):
     ZONE_DEFAULT = {"tl_y": 62.61, "tl_x": -13.07, "br_y": 49.71, "br_x": 3.46}
     LOCATION_DEFAULT = [51.509865, -0.118092, EARTH_RADIUS_KM]
 
+# window view filtering (optional, disabled if not configured)
+try:
+    from config import WINDOW_BEARING, WINDOW_FOV
+except (ModuleNotFoundError, NameError, ImportError):
+    WINDOW_BEARING = None
+    WINDOW_FOV = None
+
+
+def bearing_from_home(flight, home=LOCATION_DEFAULT):
+    """Calculate bearing from home to flight in degrees (0=north, 90=east, 180=south)."""
+    try:
+        lat1 = math.radians(home[0])
+        lat2 = math.radians(flight.latitude)
+        dlon = math.radians(flight.longitude - home[1])
+
+        x = math.sin(dlon) * math.cos(lat2)
+        y = math.cos(lat1) * math.sin(lat2) - math.sin(lat1) * math.cos(lat2) * math.cos(dlon)
+
+        return math.degrees(math.atan2(x, y)) % 360
+    except AttributeError:
+        return 0
+
+
+def is_in_window_view(flight, home=LOCATION_DEFAULT):
+    """Check if a flight falls within the configured window field of view."""
+    if WINDOW_BEARING is None or WINDOW_FOV is None:
+        return True
+
+    bearing = bearing_from_home(flight, home)
+    half_fov = WINDOW_FOV / 2
+    # normalize difference to -180..180
+    diff = (bearing - WINDOW_BEARING + 180) % 360 - 180
+    return abs(diff) <= half_fov
+
 
 def distance_from_flight_to_home(flight, home=LOCATION_DEFAULT):
     def polar_to_cartesian(lat, long, alt):
@@ -90,11 +124,13 @@ class Overhead:
             bounds = self._api.get_bounds(ZONE_DEFAULT)
             flights = self._api.get_flights(bounds=bounds)
 
-            # Sort flights by closest first
+            # filter by altitude and window view, sort by closest first
             flights = [
                 f
                 for f in flights
-                if f.altitude < MAX_ALTITUDE and f.altitude > MIN_ALTITUDE
+                if f.altitude < MAX_ALTITUDE
+                and f.altitude > MIN_ALTITUDE
+                and is_in_window_view(f)
             ]
             flights = sorted(flights, key=lambda f: distance_from_flight_to_home(f))
 
@@ -144,6 +180,7 @@ class Overhead:
                                 "vertical_speed": flight.vertical_speed,
                                 "altitude": flight.altitude,
                                 "callsign": callsign,
+                                "bearing": bearing_from_home(flight),
                             }
                         )
                         break

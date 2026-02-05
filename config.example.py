@@ -5,19 +5,37 @@
 # LOCATION SETTINGS
 # =============================================================================
 
-# Zone is ~45km box around your location
+# Zone is the bounding box for flight detection
 # Get coordinates from Google Maps (right-click your location)
+# Make this big enough to cover your viewable sky; the window view
+# filter below handles directional precision
 ZONE_HOME = {
-    "tl_y": 40.14,    # lat + 0.4 (~45km box)
-    "tl_x": -105.39,  # long - 0.4
-    "br_y": 39.34,    # lat - 0.4
-    "br_x": -104.59   # long + 0.4
+    "tl_y": 40.14,    # north boundary
+    "tl_x": -105.39,  # west boundary
+    "br_y": 39.34,    # south boundary
+    "br_x": -104.59   # east boundary
 }
 
 LOCATION_HOME = [39.74, -104.99, 1.609]  # lat, long, altitude in km
 
 WEATHER_LOCATION = "Denver, CO"
 JOURNEY_CODE_SELECTED = "DEN"  # nearby airport to highlight
+
+# =============================================================================
+# WINDOW VIEW FILTER (optional)
+# =============================================================================
+
+# Filter flights to only show ones visible from your window
+# Set to the compass direction your window faces and your field of view
+# Omit or comment out to disable (shows all flights in zone)
+#
+# WINDOW_BEARING: degrees from north, clockwise (0=N, 90=E, 180=S, 270=W)
+# WINDOW_FOV: total degrees of visible sky from your window
+#
+# To calculate: find your location and a landmark you can see in Google Maps,
+# right-click both, note coordinates, then use a bearing calculator
+WINDOW_BEARING = 250  # WSW (example: facing Manhattan from Brooklyn)
+WINDOW_FOV = 120      # degrees of visible sky
 
 # =============================================================================
 # DISPLAY SETTINGS
