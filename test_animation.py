@@ -6,6 +6,7 @@ Usage:
     python test_animation.py <animation>
     python test_animation.py <animation> --scenario=<scenario>
     python test_animation.py <animation> --scenario=<scenario> --name=<name>
+    python test_animation.py <animation> --brightness=<0-100>
 
 Scenarios (for birthday/anniversary):
     --scenario=day-of       Show the "day of" celebration
@@ -14,18 +15,23 @@ Scenarios (for birthday/anniversary):
 Names (for birthday):
     --name=<name>           Name to display (e.g., --name=Ila)
 
+Brightness:
+    --brightness=<0-100>    Set display brightness (e.g., --brightness=30 for dim mode)
+
 Examples:
     python test_animation.py birthday
     python test_animation.py birthday --scenario=day-of
     python test_animation.py birthday --scenario=day-of --name=Ila
     python test_animation.py birthday --scenario=countdown:1 --name="David's Mom"
     python test_animation.py anniversary --scenario=countdown:5
+    python test_animation.py heartbeat --brightness=30
 """
 import sys
 
 # parse optional args before other imports
 scenario = None
 name_arg = None
+brightness_arg = None
 args_to_remove = []
 for arg in sys.argv[1:]:
     if arg.startswith('--scenario='):
@@ -33,6 +39,13 @@ for arg in sys.argv[1:]:
         args_to_remove.append(arg)
     elif arg.startswith('--name='):
         name_arg = arg.split('=', 1)[1]
+        args_to_remove.append(arg)
+    elif arg.startswith('--brightness='):
+        try:
+            brightness_arg = max(0, min(100, int(arg.split('=', 1)[1])))
+        except ValueError:
+            print(f"Invalid brightness value: {arg}")
+            sys.exit(1)
         args_to_remove.append(arg)
 for arg in args_to_remove:
     sys.argv.remove(arg)
@@ -71,6 +84,8 @@ if scenario:
     print(f"   Scenario: {scenario}")
 if name_arg:
     print(f"   Name: {name_arg}")
+if brightness_arg is not None:
+    print(f"   Brightness: {brightness_arg}%")
 print()
 
 from utilities.animator import Animator
@@ -153,13 +168,13 @@ def get_scene_class(name):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python test_animation.py <animation> [--scenario=<scenario>] [--name=<name>]")
+        print("Usage: python test_animation.py <animation> [options]")
         print(f"\nAvailable animations: {', '.join(sorted(ANIMATIONS.keys()))}")
-        print("\nScenarios (for birthday/anniversary):")
-        print("  --scenario=day-of       Show the celebration")
-        print("  --scenario=countdown:N  Show N days countdown")
-        print("\nNames (for birthday):")
-        print("  --name=<name>           Name to display (e.g., --name=Ila)")
+        print("\nOptions:")
+        print("  --scenario=day-of       Show the celebration (birthday/anniversary)")
+        print("  --scenario=countdown:N  Show N days countdown (birthday/anniversary)")
+        print("  --name=<name>           Name to display (birthday)")
+        print("  --brightness=<0-100>    Set display brightness (e.g., 30 for dim mode)")
         sys.exit(1)
 
     animation_name = sys.argv[1]
@@ -181,7 +196,7 @@ def main():
             options.rows = 32
             options.cols = 64
             options.hardware_mapping = "adafruit-hat"
-            options.brightness = 50
+            options.brightness = brightness_arg if brightness_arg is not None else 50
             options.gpio_slowdown = 4  # required for Pi hardware
             options.disable_hardware_pulsing = True
             self.matrix = RGBMatrix(options=options)
@@ -229,6 +244,8 @@ def main():
             print(f"Testing: {animation_name}")
             if scenario:
                 print(f"Scenario: {scenario}")
+            if brightness_arg is not None:
+                print(f"Brightness: {brightness_arg}%")
             print("Press CTRL-C to stop\n")
             try:
                 self.play()

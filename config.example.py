@@ -8,16 +8,16 @@
 # Zone is ~45km box around your location
 # Get coordinates from Google Maps (right-click your location)
 ZONE_HOME = {
-    "tl_y": 41.15,    # lat + 0.4 (~45km box)
-    "tl_x": -74.40,   # long - 0.4
-    "br_y": 40.35,    # lat - 0.4
-    "br_x": -73.60    # long + 0.4
+    "tl_y": 40.14,    # lat + 0.4 (~45km box)
+    "tl_x": -105.39,  # long - 0.4
+    "br_y": 39.34,    # lat - 0.4
+    "br_x": -104.59   # long + 0.4
 }
 
-LOCATION_HOME = [40.75, -74.00, 0.010]  # lat, long, altitude in km
+LOCATION_HOME = [39.74, -104.99, 1.609]  # lat, long, altitude in km
 
-WEATHER_LOCATION = "New York, NY"
-JOURNEY_CODE_SELECTED = "LGA"  # nearby airport to highlight
+WEATHER_LOCATION = "Denver, CO"
+JOURNEY_CODE_SELECTED = "DEN"  # nearby airport to highlight
 
 # =============================================================================
 # DISPLAY SETTINGS
