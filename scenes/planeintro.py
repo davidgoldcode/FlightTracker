@@ -140,9 +140,12 @@ class PlaneIntroScene(object):
 
     def _is_demo_mode(self):
         """Check if running in test/demo mode (test_animation.py)."""
-        # demo mode only when overhead doesn't exist (test harness)
-        # NOT when overhead exists but has no data (that's just idle mode)
-        return not hasattr(self, 'overhead') or self.overhead is None
+        try:
+            import config
+            config.ZONE_HOME
+            return False
+        except (ImportError, AttributeError):
+            return True
 
     @Animator.KeyFrame.add(1)
     def plane_intro(self, count):
