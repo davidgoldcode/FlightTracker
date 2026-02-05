@@ -225,7 +225,7 @@ class WeatherScene(object):
         if current_temperature > max_temp:
             ratio = 1
         elif current_temperature > min_temp:
-            ratio = (current_temperature - min_temp) / max_temp
+            ratio = (current_temperature - min_temp) / (max_temp - min_temp)
         else:
             ratio = 0
 
