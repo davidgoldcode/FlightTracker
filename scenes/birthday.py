@@ -224,6 +224,12 @@ class BirthdayScene(object):
 
     def _draw_celebration(self, drawn_pixels, name):
         """Draw full birthday celebration with cake and confetti."""
+        # clear clock area (y=0-10) to prevent overlap
+        for x in range(64):
+            for y in range(11):
+                self.canvas.SetPixel(x, y, 0, 0, 0)
+                drawn_pixels.append((x, y))
+
         # draw cake (bottom left)
         cake_x = 4
         cake_y = 24
@@ -279,6 +285,12 @@ class BirthdayScene(object):
 
     def _draw_countdown(self, drawn_pixels, name, days):
         """Draw birthday countdown display."""
+        # clear clock area (y=0-10) to prevent overlap
+        for x in range(64):
+            for y in range(11):
+                self.canvas.SetPixel(x, y, 0, 0, 0)
+                drawn_pixels.append((x, y))
+
         # draw small cake icon (top right corner)
         cake_x = 52
         cake_y = 2
