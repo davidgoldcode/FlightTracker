@@ -56,6 +56,7 @@ class StPatricksScene(object):
         self._shamrocks = [Shamrock() for _ in range(12)]
         self._last_stpatricks_pixels = []
         self._stpatricks_phase = 0
+        self._stpatricks_text_x = 64
 
     def _is_st_patricks(self):
         if DEMO_MODE:
@@ -121,15 +122,18 @@ class StPatricksScene(object):
                     self.canvas.SetPixel(px, py, r, g, b)
                     drawn_pixels.append((px, py))
 
-        # "Happy St. Patrick's Day!" scrolling text
+        # scrolling text
         text = "Happy St. Patrick's Day!"
+        text_width = len(text) * 5
         pulse = 0.7 + 0.3 * math.sin(self._stpatricks_phase * 2)
         text_color = graphics.Color(int(50 * pulse), int(200 * pulse), int(80 * pulse))
-        x = (64 - len(text) * 4) // 2
-        graphics.DrawText(self.canvas, fonts.extrasmall, x, 18, text_color, text)
-        for tx in range(max(0, x), min(64, x + len(text) * 5)):
+        graphics.DrawText(self.canvas, fonts.extrasmall, int(self._stpatricks_text_x), 18, text_color, text)
+        for tx in range(max(0, int(self._stpatricks_text_x)), min(64, int(self._stpatricks_text_x) + text_width)):
             for ty in range(12, 20):
                 drawn_pixels.append((tx, ty))
+        self._stpatricks_text_x -= 0.5
+        if self._stpatricks_text_x < -text_width:
+            self._stpatricks_text_x = 64
 
         # pot of gold at bottom right
         gold = (255, 200, 50)
