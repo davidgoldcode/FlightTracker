@@ -194,8 +194,9 @@ class Overhead:
                 self._data = data
 
         except (ConnectionError, NewConnectionError, MaxRetryError):
-            self._new_data = False
-            self._processing = False
+            with self._lock:
+                self._new_data = False
+                self._processing = False
 
     @property
     def new_data(self):
@@ -215,7 +216,8 @@ class Overhead:
 
     @property
     def data_is_empty(self):
-        return len(self._data) == 0
+        with self._lock:
+            return len(self._data) == 0
 
 
 # Main function
