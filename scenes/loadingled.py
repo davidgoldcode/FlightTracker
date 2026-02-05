@@ -49,3 +49,5 @@ class LoadingLEDScene(object):
             # Not processing, leave LED on
             if self.gpio_setup_complete:
                 GPIO.output(LOADING_LED_GPIO_PIN, GPIO.HIGH)
+
+        return reset_count
