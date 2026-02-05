@@ -16,11 +16,11 @@ FIRE_COLORS = [
     (60, 10, 0),      # embers
 ]
 
-# fireplace dimensions - taller and wider
-FIRE_WIDTH = 48
+# fireplace dimensions
+FIRE_WIDTH = 64
 FIRE_HEIGHT = 28
-FIRE_X_OFFSET = 8   # center on 64px display
-FIRE_Y_OFFSET = 4   # start higher to fill more screen
+FIRE_X_OFFSET = 0
+FIRE_Y_OFFSET = 4
 
 
 class FireplaceScene(object):
@@ -49,7 +49,7 @@ class FireplaceScene(object):
         factor = intensity / 255
         return (int(r * factor), int(g * factor), int(b * factor))
 
-    @Animator.KeyFrame.add(1)
+    @Animator.KeyFrame.add(2)
     def fireplace(self, count):
         # only show when no flights overhead
         if len(self._data):
