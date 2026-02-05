@@ -22,8 +22,13 @@ class ClockScene(object):
             # Ensure redraw when there's new data
             self._last_time = None
 
+        elif self._idle_drawn_this_frame:
+            # An idle animation (holiday, ambient) is active - don't draw clock
+            # The idle animation owns the whole screen
+            self._last_time = None
+
         else:
-            # If there's no data to display
+            # If there's no data to display and no idle animation active
             # then draw a clock
             now = datetime.now()
             current_time = now.strftime("%I:%M%p")
