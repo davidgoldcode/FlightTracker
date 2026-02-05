@@ -134,6 +134,8 @@ class NewYearScene(object):
         for px, py in self._last_newyear_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
+        self.clear_clock_region(drawn_pixels)
+
         self._newyear_phase += 0.15
 
         if countdown is not None and countdown > 0:

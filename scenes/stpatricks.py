@@ -92,10 +92,12 @@ class StPatricksScene(object):
         for px, py in self._last_stpatricks_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
+        self.clear_clock_region(drawn_pixels)
+
         self._stpatricks_phase += 0.1
 
-        # green gradient background (subtle)
-        for y in range(32):
+        # green gradient background (below clock area)
+        for y in range(11, 32):
             intensity = 0.1 + 0.05 * math.sin(self._stpatricks_phase + y * 0.2)
             for x in range(64):
                 r = int(10 * intensity)

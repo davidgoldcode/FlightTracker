@@ -106,10 +106,12 @@ class IndependenceScene(object):
         for px, py in self._last_independence_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
+        self.clear_clock_region(drawn_pixels)
+
         self._independence_phase += 0.1
 
-        # dark blue sky background
-        for y in range(32):
+        # dark blue sky background (below clock area)
+        for y in range(11, 32):
             for x in range(64):
                 self.canvas.SetPixel(x, y, 5, 5, 20)
                 drawn_pixels.append((x, y))

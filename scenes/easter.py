@@ -147,11 +147,13 @@ class EasterScene(object):
         for px, py in self._last_easter_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
+        self.clear_clock_region(drawn_pixels)
+
         self._easter_phase += 0.1
         self._bunny_hop += 0.15
 
-        # pastel gradient background
-        for y in range(32):
+        # pastel gradient background (below clock area)
+        for y in range(11, 32):
             for x in range(64):
                 intensity = 0.15 + 0.05 * math.sin(self._easter_phase + y * 0.1)
                 r = int(255 * intensity * 0.4)

@@ -171,6 +171,8 @@ class ChanukahScene(object):
         for px, py in self._last_chanukah_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
+        self.clear_clock_region(drawn_pixels)
+
         self._flame_phase += 0.15
 
         # draw twinkling stars in background

@@ -136,10 +136,12 @@ class ThanksgivingScene(object):
         for px, py in self._last_thanksgiving_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
+        self.clear_clock_region(drawn_pixels)
+
         self._thanksgiving_phase += 0.08
 
-        # warm autumn gradient background
-        for y in range(32):
+        # warm autumn gradient background (below clock area)
+        for y in range(11, 32):
             for x in range(64):
                 # warm orange/brown gradient
                 intensity = 0.15 + 0.03 * math.sin(self._thanksgiving_phase + y * 0.15)

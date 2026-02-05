@@ -2,6 +2,10 @@ from time import sleep
 
 DELAY_DEFAULT = 0.01
 
+# reserved screen regions that persistent scenes use
+# idle animations must clear these areas before drawing
+CLOCK_REGION_Y = (0, 10)  # clock draws at y=0-8, we clear y=0-10 for safety
+
 
 class Animator(object):
     class KeyFrame(object):
@@ -24,6 +28,25 @@ class Animator(object):
         self._register_keyframes()
 
         super().__init__()
+
+    def clear_clock_region(self, drawn_pixels=None):
+        """Clear the clock region (y=0-10) to prevent overlap with idle animations.
+
+        Args:
+            drawn_pixels: optional list to append cleared pixel coords to
+
+        Returns:
+            list of (x, y) tuples that were cleared
+        """
+        cleared = []
+        y_start, y_end = CLOCK_REGION_Y
+        for x in range(64):
+            for y in range(y_start, y_end + 1):
+                self.canvas.SetPixel(x, y, 0, 0, 0)
+                cleared.append((x, y))
+        if drawn_pixels is not None:
+            drawn_pixels.extend(cleared)
+        return cleared
 
     def _register_keyframes(self):
         # Some introspection to setup keyframes

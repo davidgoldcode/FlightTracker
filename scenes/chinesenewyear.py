@@ -185,10 +185,12 @@ class ChineseNewYearScene(object):
         for px, py in self._last_cny_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
+        self.clear_clock_region(drawn_pixels)
+
         self._cny_phase += 0.1
 
-        # red background with subtle pattern
-        for y in range(32):
+        # red background with subtle pattern (below clock area)
+        for y in range(11, 32):
             for x in range(64):
                 intensity = 0.2 + 0.05 * math.sin(self._cny_phase * 0.5 + x * 0.1 + y * 0.1)
                 r = int(200 * intensity)

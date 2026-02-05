@@ -101,6 +101,8 @@ class ValentinesScene(object):
         for px, py in self._last_valentines_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
+        self.clear_clock_region(drawn_pixels)
+
         self._pulse_phase += 0.15
 
         # draw falling hearts

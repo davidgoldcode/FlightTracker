@@ -117,11 +117,13 @@ class HalloweenScene(object):
         for px, py in self._last_halloween_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
+        self.clear_clock_region(drawn_pixels)
+
         self._halloween_phase += 0.1
 
-        # draw purple/orange gradient sky at top
-        for y in range(8):
-            intensity = 1 - (y / 8)
+        # draw purple/orange gradient sky (y=11-18, below clock area)
+        for y in range(11, 19):
+            intensity = 1 - ((y - 11) / 8)
             for x in range(64):
                 # alternating purple/orange glow
                 if (x + int(self._halloween_phase * 2)) % 20 < 10:

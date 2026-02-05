@@ -97,9 +97,11 @@ class ChristmasScene(object):
         for px, py in self._last_christmas_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
+        self.clear_clock_region(drawn_pixels)
+
         self._twinkle_phase += 0.15
         tree_x = 32
-        tree_y = 8
+        tree_y = 11  # move tree down to avoid clock area
 
         # draw falling snow
         for snow in self._christmas_snowflakes:

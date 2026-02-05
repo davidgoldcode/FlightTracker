@@ -128,6 +128,8 @@ class AnniversaryScene(object):
         for px, py in self._last_anniversary_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
+        self.clear_clock_region(drawn_pixels)
+
         self._heart_phase += 0.1
 
         # check if it's the anniversary day (real check or scenario)
