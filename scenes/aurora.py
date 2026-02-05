@@ -47,7 +47,7 @@ class AuroraScene(object):
         self._aurora_initialized = True
 
     @Animator.KeyFrame.add(1)
-    def aurora(self, count):
+    def zzz_aurora(self, count):
         # only show when no flights overhead
         if len(self._data):
             if self._last_aurora_pixels:

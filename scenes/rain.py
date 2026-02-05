@@ -4,6 +4,15 @@ from utilities.animator import Animator
 from setup import frames
 
 
+def _is_demo_mode():
+    try:
+        from config import ZONE_HOME
+        return False
+    except (ImportError, NameError):
+        return True
+
+DEMO_MODE = _is_demo_mode()
+
 # rain settings
 NUM_RAINDROPS = 60
 RAIN_SPEED_MIN = 1.5
@@ -49,6 +58,10 @@ class RainScene(object):
                 for px, py in self._last_rain_pixels:
                     self.canvas.SetPixel(px, py, 0, 0, 0)
                 self._last_rain_pixels = []
+            return
+
+        # only show in demo/test mode
+        if not DEMO_MODE:
             return
 
         # mutual exclusion - only one idle animation per frame

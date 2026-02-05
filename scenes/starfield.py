@@ -4,6 +4,15 @@ from utilities.animator import Animator
 from setup import frames
 
 
+def _is_demo_mode():
+    try:
+        from config import ZONE_HOME
+        return False
+    except (ImportError, NameError):
+        return True
+
+DEMO_MODE = _is_demo_mode()
+
 # starfield settings
 NUM_STARS = 40
 TWINKLE_SPEED = 0.1
@@ -70,6 +79,10 @@ class StarfieldScene(object):
                 for px, py in self._last_star_pixels:
                     self.canvas.SetPixel(px, py, 0, 0, 0)
                 self._last_star_pixels = []
+            return
+
+        # only show in demo/test mode
+        if not DEMO_MODE:
             return
 
         # mutual exclusion - only one idle animation per frame

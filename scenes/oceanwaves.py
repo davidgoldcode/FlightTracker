@@ -3,6 +3,15 @@ from utilities.animator import Animator
 from setup import frames
 
 
+def _is_demo_mode():
+    try:
+        from config import ZONE_HOME
+        return False
+    except (ImportError, NameError):
+        return True
+
+DEMO_MODE = _is_demo_mode()
+
 # wave settings
 WAVE_SPEED = 0.08
 WAVE_HEIGHT = 4
@@ -32,6 +41,10 @@ class OceanWavesScene(object):
                 for px, py in self._last_wave_pixels:
                     self.canvas.SetPixel(px, py, 0, 0, 0)
                 self._last_wave_pixels = []
+            return
+
+        # only show in demo/test mode
+        if not DEMO_MODE:
             return
 
         # mutual exclusion - only one idle animation per frame

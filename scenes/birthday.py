@@ -184,14 +184,8 @@ class BirthdayScene(object):
                 self._last_birthday_pixels = []
             return
 
-        # mutual exclusion - only one idle animation per frame
-        if self._idle_drawn_this_frame:
-            return
-        self._idle_drawn_this_frame = True
-
-        # check for birthday or countdown
+        # check if this scene should show
         if DEMO_MODE:
-            # demo mode: simulate scenario
             demo_name = self._scenario_name or "Mom"
             if self._scenario_days is not None:
                 if self._scenario_days == 0:
@@ -199,13 +193,17 @@ class BirthdayScene(object):
                 else:
                     name, days, is_today = demo_name, self._scenario_days, False
             else:
-                # default demo: show countdown
                 demo_name = self._scenario_name or "Demo"
                 name, days, is_today = demo_name, 3, False
         else:
             name, days, is_today = self._check_birthday_or_countdown()
             if name is None:
                 return
+
+        # mutual exclusion - only one idle animation per frame
+        if self._idle_drawn_this_frame:
+            return
+        self._idle_drawn_this_frame = True
 
         drawn_pixels = []
 

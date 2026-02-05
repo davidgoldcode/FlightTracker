@@ -4,6 +4,15 @@ from utilities.animator import Animator
 from setup import frames
 
 
+def _is_demo_mode():
+    try:
+        from config import ZONE_HOME
+        return False
+    except (ImportError, NameError):
+        return True
+
+DEMO_MODE = _is_demo_mode()
+
 # time periods and their color schemes
 # format: (hour_start, hour_end, sky_colors, ground_color)
 TIME_PERIODS = {
@@ -45,6 +54,10 @@ class TimeOfDayScene(object):
                 for px, py in self._last_tod_pixels:
                     self.canvas.SetPixel(px, py, 0, 0, 0)
                 self._last_tod_pixels = []
+            return
+
+        # only show in demo/test mode
+        if not DEMO_MODE:
             return
 
         # mutual exclusion - only one idle animation per frame

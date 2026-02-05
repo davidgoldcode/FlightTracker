@@ -93,13 +93,13 @@ class IndependenceScene(object):
                 self._last_independence_pixels = []
             return
 
+        if not self._is_independence_day():
+            return
+
         # mutual exclusion - only one idle animation per frame
         if self._idle_drawn_this_frame:
             return
         self._idle_drawn_this_frame = True
-
-        if not self._is_independence_day():
-            return
 
         drawn_pixels = []
 

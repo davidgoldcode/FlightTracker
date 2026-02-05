@@ -38,7 +38,7 @@ class HeartbeatScene(object):
         self._last_heart_pixels = []
 
     @Animator.KeyFrame.add(frames.PER_SECOND // 10)
-    def heartbeat(self, count):
+    def zz_heartbeat(self, count):
         # only show when no flights overhead
         if len(self._data):
             # clear heart if flights appear
