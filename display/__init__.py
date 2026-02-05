@@ -37,7 +37,6 @@ from scenes.independence import IndependenceScene
 from scenes.thanksgiving import ThanksgivingScene
 from scenes.chinesenewyear import ChineseNewYearScene
 from scenes.planeintro import PlaneIntroScene
-from scenes.bearingindicator import BearingIndicatorScene
 
 from rgbmatrix import graphics
 from rgbmatrix import RGBMatrix, RGBMatrixOptions
@@ -86,7 +85,6 @@ class Display(
     JourneyScene,
     LoadingLEDScene if LOADING_LED_ENABLED else LoadingPulseScene,
     PlaneDetailsScene,
-    BearingIndicatorScene,
     ClockScene,
     DateScene,
     HeartbeatScene,
