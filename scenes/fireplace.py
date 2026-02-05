@@ -1,7 +1,69 @@
 import random
 import math
+from datetime import datetime
 from utilities.animator import Animator
 from setup import frames
+
+
+def _is_demo_mode():
+    try:
+        from config import ZONE_HOME
+        return False
+    except (ImportError, NameError):
+        return True
+
+DEMO_MODE = _is_demo_mode()
+
+
+def _is_quiet_hours():
+    """Check if current time falls within configured quiet hours."""
+    now = datetime.now()
+
+    try:
+        from config import QUIET_SCHEDULE
+        is_weekend = now.weekday() >= 5
+        schedule = QUIET_SCHEDULE.get("weekend" if is_weekend else "weekday", {})
+
+        for period in schedule.values():
+            if not isinstance(period, dict) or "start" not in period:
+                continue
+            start_h, start_m = map(int, period["start"].split(":"))
+            end_h, end_m = map(int, period["end"].split(":"))
+
+            start_minutes = start_h * 60 + start_m
+            end_minutes = end_h * 60 + end_m
+            now_minutes = now.hour * 60 + now.minute
+
+            # handle overnight spans (e.g., 22:00 to 02:00)
+            if start_minutes > end_minutes:
+                if now_minutes >= start_minutes or now_minutes < end_minutes:
+                    return True
+            else:
+                if start_minutes <= now_minutes < end_minutes:
+                    return True
+
+        return False
+
+    except (ImportError, NameError):
+        pass
+
+    # legacy config fallback
+    try:
+        from config import QUIET_HOURS_START, QUIET_HOURS_END
+        start_h, start_m = map(int, QUIET_HOURS_START.split(":"))
+        end_h, end_m = map(int, QUIET_HOURS_END.split(":"))
+
+        start_minutes = start_h * 60 + start_m
+        end_minutes = end_h * 60 + end_m
+        now_minutes = now.hour * 60 + now.minute
+
+        if start_minutes > end_minutes:
+            return now_minutes >= start_minutes or now_minutes < end_minutes
+        else:
+            return start_minutes <= now_minutes < end_minutes
+
+    except (ImportError, NameError):
+        return False
 
 
 # fire colors from hottest to coolest
@@ -57,6 +119,10 @@ class FireplaceScene(object):
                 for px, py in self._last_fire_pixels:
                     self.canvas.SetPixel(px, py, 0, 0, 0)
                 self._last_fire_pixels = []
+            return
+
+        # only show during quiet hours (or always in demo mode)
+        if not DEMO_MODE and not _is_quiet_hours():
             return
 
         # mutual exclusion - only one idle animation per frame
