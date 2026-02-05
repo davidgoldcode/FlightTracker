@@ -2,6 +2,7 @@ from FlightRadar24.api import FlightRadar24API
 from threading import Thread, Lock
 from time import sleep
 import math
+import sys
 
 from requests.exceptions import ConnectionError
 from urllib3.exceptions import NewConnectionError
@@ -193,7 +194,13 @@ class Overhead:
                 self._processing = False
                 self._data = data
 
-        except (ConnectionError, NewConnectionError, MaxRetryError):
+        except (ConnectionError, NewConnectionError, MaxRetryError) as e:
+            print(f"FlightRadar API connection error: {e}", file=sys.stderr)
+            with self._lock:
+                self._new_data = False
+                self._processing = False
+        except Exception as e:
+            print(f"FlightRadar API unexpected error: {e}", file=sys.stderr)
             with self._lock:
                 self._new_data = False
                 self._processing = False

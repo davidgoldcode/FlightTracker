@@ -7,8 +7,13 @@ from functools import lru_cache
 from rgbmatrix import graphics
 from utilities.animator import Animator
 from setup import colours, fonts, frames
-from config import WEATHER_LOCATION
 import sys
+
+# Load weather location with fallback for demo mode
+try:
+    from config import WEATHER_LOCATION
+except (ModuleNotFoundError, NameError, ImportError):
+    WEATHER_LOCATION = "New York, NY"
 
 # Attempt to load config data
 try:

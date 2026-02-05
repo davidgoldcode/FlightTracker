@@ -71,7 +71,7 @@ class AnniversaryScene(object):
                 day = 28
 
             anniversary_this_year = datetime(year, month, day)
-            if anniversary_this_year < today:
+            if anniversary_this_year.date() < today.date():
                 year += 1
                 # check leap year again for next year
                 if month == 2 and day == 29 and not calendar.isleap(year):
