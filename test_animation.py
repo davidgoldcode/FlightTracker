@@ -82,7 +82,6 @@ ANIMATIONS = {
     'clock': 'scenes.clock.ClockScene',
     'weather': 'scenes.weather.WeatherScene',
     'date': 'scenes.date.DateScene',
-    'day': 'scenes.day.DayScene',
     'lovemessages': 'scenes.lovemessages.LoveMessagesScene',
     'starfield': 'scenes.starfield.StarfieldScene',
     'oceanwaves': 'scenes.oceanwaves.OceanWavesScene',

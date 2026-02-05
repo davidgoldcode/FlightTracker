@@ -14,7 +14,6 @@ except ImportError:
     LoadingLEDScene = LoadingPulseScene  # fallback on Mac
 from scenes.clock import ClockScene
 from scenes.planedetails import PlaneDetailsScene
-from scenes.day import DayScene
 from scenes.date import DateScene
 from scenes.heartbeat import HeartbeatScene
 from scenes.lovemessages import LoveMessagesScene
@@ -87,7 +86,6 @@ class Display(
     LoadingLEDScene if LOADING_LED_ENABLED else LoadingPulseScene,
     PlaneDetailsScene,
     ClockScene,
-    DayScene,
     DateScene,
     HeartbeatScene,
     LoveMessagesScene,
