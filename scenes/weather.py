@@ -310,6 +310,11 @@ class WeatherScene(object):
             # Don't draw anything
             return
 
+        if self._idle_drawn_this_frame:
+            # An idle animation is active - don't draw rainfall
+            self._last_upcoming_rain_and_temp = None
+            return
+
         if not (count % RAINFALL_REFRESH_SECONDS):
             self.upcoming_rain_and_temp = grab_upcoming_rainfall_and_temperature(
                 WEATHER_LOCATION, RAINFALL_HOURS
@@ -339,6 +344,11 @@ class WeatherScene(object):
 
         if len(self._data):
             # Don't draw if there's plane data
+            return
+
+        if self._idle_drawn_this_frame:
+            # An idle animation is active - don't draw temperature
+            self._last_temperature_str = None
             return
 
         if not (count % TEMPERATURE_REFRESH_SECONDS):
