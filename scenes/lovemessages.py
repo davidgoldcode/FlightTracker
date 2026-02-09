@@ -158,9 +158,8 @@ class LoveMessagesScene(object):
         self._msg_next_time = time.time() + random.randint(MIN_INTERVAL, MAX_INTERVAL)
         self._clear_areas()
 
-    # named heart_and_message so it sorts before heartbeat alphabetically
-    # (keyframes execute in dir() order). when active, this claims the
-    # frame and heartbeat skips. when inactive, heartbeat draws normally.
+    # when active, this claims the idle frame mutex so persistent displays
+    # (clock, date, temperature) skip drawing
     @Animator.KeyFrame.add(1)
     def heart_and_message(self, count):
         # flights take priority

@@ -294,8 +294,10 @@ class WeatherScene(object):
 
                 self.draw_square(x1, y1, x2, y2, colours.BLACK)
 
+    # zx_ prefix ensures this runs AFTER all idle animations in alphabetical
+    # keyframe order, so _idle_drawn_this_frame is already set correctly
     @Animator.KeyFrame.add(frames.PER_SECOND * 1)
-    def rainfall(self, count):
+    def zx_rainfall(self, count):
 
         if not RAINFALL_ENABLED:
             return
@@ -339,8 +341,10 @@ class WeatherScene(object):
             )
             self._last_upcoming_rain_and_temp = self.upcoming_rain_and_temp.copy()
 
+    # zx_ prefix ensures this runs AFTER all idle animations in alphabetical
+    # keyframe order, so _idle_drawn_this_frame is already set correctly
     @Animator.KeyFrame.add(frames.PER_SECOND * 1)
-    def temperature(self, count):
+    def zx_temperature(self, count):
 
         if len(self._data):
             # Don't draw if there's plane data

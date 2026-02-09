@@ -4,6 +4,15 @@ from utilities.animator import Animator
 from setup import frames
 
 
+def _is_demo_mode():
+    try:
+        from config import ZONE_HOME
+        return False
+    except (ImportError, NameError):
+        return True
+
+DEMO_MODE = _is_demo_mode()
+
 # aurora colors: green, blue, purple, cyan
 AURORA_COLORS = [
     (0, 255, 100),    # bright green
@@ -48,6 +57,9 @@ class AuroraScene(object):
 
     @Animator.KeyFrame.add(1)
     def zzz_aurora(self, count):
+        if not DEMO_MODE:
+            return
+
         # only show when no flights overhead
         if len(self._data):
             if self._last_aurora_pixels:

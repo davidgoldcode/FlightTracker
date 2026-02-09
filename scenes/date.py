@@ -16,8 +16,10 @@ class DateScene(object):
         super().__init__()
         self._last_date = None
 
+    # zx_ prefix ensures this runs AFTER all idle animations in alphabetical
+    # keyframe order, so _idle_drawn_this_frame is already set correctly
     @Animator.KeyFrame.add(frames.PER_SECOND * 1)
-    def date(self, count):
+    def zx_date(self, count):
         if len(self._data):
             # Ensure redraw when there's new data
             self._last_date = None
