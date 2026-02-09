@@ -4,6 +4,15 @@ from setup import colours, frames
 from rgbmatrix import graphics
 
 
+def _is_demo_mode():
+    try:
+        from config import ZONE_HOME
+        return False
+    except (ImportError, NameError):
+        return True
+
+DEMO_MODE = _is_demo_mode()
+
 # heart shape (8x6 pixels)
 # centered at position for visibility alongside clock/weather
 HEART_PIXELS = [
@@ -39,6 +48,9 @@ class HeartbeatScene(object):
 
     @Animator.KeyFrame.add(frames.PER_SECOND // 10)
     def zz_heartbeat(self, count):
+        if not DEMO_MODE:
+            return
+
         # only show when no flights overhead
         if len(self._data):
             # clear heart if flights appear
