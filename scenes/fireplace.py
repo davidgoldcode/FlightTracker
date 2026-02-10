@@ -1,7 +1,7 @@
 import random
 import math
-from datetime import datetime
 from utilities.animator import Animator
+from utilities.datenow import get_now
 from setup import frames
 
 
@@ -17,7 +17,7 @@ DEMO_MODE = _is_demo_mode()
 
 def _is_quiet_hours():
     """Check if current time falls within configured quiet hours."""
-    now = datetime.now()
+    now = get_now()
 
     try:
         from config import QUIET_SCHEDULE

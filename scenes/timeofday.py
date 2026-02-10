@@ -1,6 +1,6 @@
 import math
-from datetime import datetime
 from utilities.animator import Animator
+from utilities.datenow import get_now
 from setup import frames
 
 
@@ -34,7 +34,7 @@ class TimeOfDayScene(object):
         self._sun_moon_phase = 0
 
     def _get_period(self):
-        hour = datetime.now().hour
+        hour = get_now().hour
         for name, (start, end, colors, ground) in TIME_PERIODS.items():
             if start <= hour < end:
                 return name, colors, ground
@@ -73,7 +73,7 @@ class TimeOfDayScene(object):
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
         period, sky_colors, ground_color = self._get_period()
-        hour = datetime.now().hour
+        hour = get_now().hour
 
         # draw sky gradient
         for y in range(24):

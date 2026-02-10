@@ -2,8 +2,8 @@ import random
 import time
 import json
 import urllib.request
-from datetime import datetime
 from utilities.animator import Animator
+from utilities.datenow import get_now
 from setup import frames
 
 
@@ -65,7 +65,7 @@ def _check_snow_from_temperature():
 
 def _is_snowy_morning():
     """Check if it's morning and weather reports snow."""
-    now = datetime.now()
+    now = get_now()
     if not (MORNING_START <= now.hour < MORNING_END):
         return False
 

@@ -1,6 +1,5 @@
-from datetime import datetime
-
 from utilities.animator import Animator
+from utilities.datenow import get_now
 from setup import colours, fonts, frames
 
 from rgbmatrix import graphics
@@ -32,7 +31,7 @@ class ClockScene(object):
         else:
             # If there's no data to display and no idle animation active
             # then draw a clock
-            now = datetime.now()
+            now = get_now()
             current_time = now.strftime("%I:%M%p")
 
             # Only draw if time needs updated

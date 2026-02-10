@@ -1,6 +1,5 @@
-from datetime import datetime
-
 from utilities.animator import Animator
+from utilities.datenow import get_now
 from setup import colours, fonts, frames
 
 from rgbmatrix import graphics
@@ -32,7 +31,7 @@ class DateScene(object):
         else:
             # If there's no data to display and no idle animation active
             # then draw the date
-            now = datetime.now()
+            now = get_now()
             current_date = now.strftime("%a %b %-d")
 
             # Only draw if date needs updated

@@ -2,6 +2,7 @@ import math
 import random
 from datetime import datetime
 from utilities.animator import Animator
+from utilities.datenow import get_now
 from setup import colours, frames, fonts
 from rgbmatrix import graphics
 
@@ -125,7 +126,7 @@ class BirthdayScene(object):
 
     def _get_days_until(self, date_str):
         """Calculate days until a birthday."""
-        today = datetime.now()
+        today = get_now()
         try:
             month, day = map(int, date_str.split("-"))
             year = today.year
@@ -154,7 +155,7 @@ class BirthdayScene(object):
 
         Returns: (name, days_until, is_today) or (None, None, False)
         """
-        today = datetime.now().strftime("%m-%d")
+        today = get_now().strftime("%m-%d")
 
         for name, date_val in BIRTHDAYS.items():
             date, countdown_days = self._get_birthday_info(name, date_val)

@@ -2,6 +2,7 @@ import math
 import random
 from datetime import datetime
 from utilities.animator import Animator
+from utilities.datenow import get_now
 from setup import colours, frames, fonts
 from rgbmatrix import graphics
 
@@ -87,7 +88,7 @@ class NewYearScene(object):
                 return False
         except (ImportError, NameError):
             return False
-        today = datetime.now().strftime("%m-%d")
+        today = get_now().strftime("%m-%d")
         return today == "12-31"
 
     def _get_countdown(self):
@@ -99,7 +100,7 @@ class NewYearScene(object):
                 self._demo_countdown = 10
             return max(0, int(self._demo_countdown))
 
-        now = datetime.now()
+        now = get_now()
         if now.hour == 23 and now.minute >= 59 and now.second >= 50:
             return 60 - now.second
         elif now.hour == 0 and now.minute == 0 and now.second < 10:
@@ -166,7 +167,7 @@ class NewYearScene(object):
 
         else:
             # celebration mode - fireworks!
-            year = datetime.now().year + 1 if not DEMO_MODE else 2026
+            year = get_now().year + 1 if not DEMO_MODE else 2026
             msg = f"HAPPY {year}!"
             pulse = 0.7 + 0.3 * math.sin(self._newyear_phase * 2)
             text_color = graphics.Color(

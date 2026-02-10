@@ -2,6 +2,7 @@ import math
 import random
 from datetime import datetime, timedelta
 from utilities.animator import Animator
+from utilities.datenow import get_now
 from setup import colours, frames, fonts
 from rgbmatrix import graphics
 
@@ -60,7 +61,7 @@ class AnniversaryScene(object):
         if not ANNIVERSARY_DATE:
             return None
 
-        today = datetime.now()
+        today = get_now()
         try:
             month, day = map(int, ANNIVERSARY_DATE.split("-"))
             year = today.year
@@ -86,7 +87,7 @@ class AnniversaryScene(object):
     def _is_anniversary_today(self):
         if not ANNIVERSARY_DATE:
             return False
-        today = datetime.now().strftime("%m-%d")
+        today = get_now().strftime("%m-%d")
         return today == ANNIVERSARY_DATE
 
     @Animator.KeyFrame.add(1)

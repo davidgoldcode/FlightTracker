@@ -5,6 +5,7 @@ Provides functions to check if the display should be dimmed or off
 based on configurable weekday/weekend schedules.
 """
 from datetime import datetime, time
+from utilities.datenow import get_now
 
 
 def _parse_time(time_str):
@@ -22,7 +23,7 @@ def _time_in_range(start_str, end_str, check_time=None):
     Handles ranges that cross midnight (e.g., 22:00 to 02:00).
     """
     if check_time is None:
-        check_time = datetime.now().time()
+        check_time = get_now().time()
 
     start = _parse_time(start_str)
     end = _parse_time(end_str)
@@ -40,7 +41,7 @@ def _time_in_range(start_str, end_str, check_time=None):
 
 def _is_weekend():
     """Check if today is a weekend (Saturday=5, Sunday=6)."""
-    return datetime.now().weekday() >= 5
+    return get_now().weekday() >= 5
 
 
 def _load_schedule():

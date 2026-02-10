@@ -1,7 +1,7 @@
 import math
 import random
-from datetime import datetime
 from utilities.animator import Animator
+from utilities.datenow import get_now
 from setup import colours, frames, fonts
 from rgbmatrix import graphics
 
@@ -72,7 +72,7 @@ class ChristmasScene(object):
                 return False
         except (ImportError, NameError):
             return False
-        today = datetime.now().strftime("%m-%d")
+        today = get_now().strftime("%m-%d")
         return today == "12-25"
 
     @Animator.KeyFrame.add(1)

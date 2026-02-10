@@ -1,7 +1,7 @@
 import math
 import random
-from datetime import datetime
 from utilities.animator import Animator
+from utilities.datenow import get_now
 from setup import colours, frames, fonts
 from rgbmatrix import graphics
 
@@ -74,7 +74,7 @@ class ValentinesScene(object):
                 return False
         except (ImportError, NameError):
             return False
-        today = datetime.now().strftime("%m-%d")
+        today = get_now().strftime("%m-%d")
         return today == "02-14"
 
     @Animator.KeyFrame.add(1)

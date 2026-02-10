@@ -6,6 +6,7 @@ from math import ceil
 from functools import lru_cache
 from rgbmatrix import graphics
 from utilities.animator import Animator
+from utilities.datenow import get_now
 from setup import colours, fonts, frames
 import sys
 
@@ -145,7 +146,7 @@ def grab_upcoming_rainfall_and_temperature(location, hours):
             for hour in hourly_forecast
         ]
 
-        now = datetime.datetime.now()
+        now = get_now()
         current_hour = now.hour
         up_coming_rainfall_and_temperature = hourly_data[
             current_hour : current_hour + hours
