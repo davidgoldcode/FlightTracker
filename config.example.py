@@ -153,3 +153,13 @@ QUOTES = [
     "One day at a time",
     "Do what you love",
 ]
+
+# =============================================================================
+# DEBUG / TESTING
+# =============================================================================
+
+# Override the date for testing holiday animations without changing system clock
+# Format: "MM-DD" (e.g., "12-31" for New Year's Eve, "10-31" for Halloween)
+# Time (hours/minutes/seconds) stays real, only the date changes
+# Comment out or set to "" to use the real date
+# DEBUG_DATE = "12-31"
