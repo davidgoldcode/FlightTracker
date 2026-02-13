@@ -123,10 +123,18 @@ class FireplaceScene(object):
 
         # only show during quiet hours (or always in demo mode)
         if not DEMO_MODE and not _is_quiet_hours():
+            if self._last_fire_pixels:
+                for px, py in self._last_fire_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_fire_pixels = []
             return
 
         # love messages take priority when active
         if getattr(self, '_msg_active', False):
+            if self._last_fire_pixels:
+                for px, py in self._last_fire_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_fire_pixels = []
             return
 
         # mutual exclusion - only one idle animation per frame
