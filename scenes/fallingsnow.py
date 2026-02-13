@@ -128,7 +128,7 @@ class FallingSnowScene(object):
             return
 
         # love messages take priority when active
-        if self._msg_active:
+        if getattr(self, '_msg_active', False):
             return
 
         # mutual exclusion - only one idle animation per frame
