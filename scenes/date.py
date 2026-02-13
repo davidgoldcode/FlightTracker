@@ -26,7 +26,16 @@ class DateScene(object):
         elif self._idle_drawn_this_frame:
             # An idle animation (holiday, ambient) is active - don't draw date
             # The idle animation owns the whole screen
-            self._last_date = None
+            if self._last_date is not None:
+                _ = graphics.DrawText(
+                    self.canvas,
+                    DATE_FONT,
+                    DATE_POSITION[0],
+                    DATE_POSITION[1],
+                    colours.BLACK,
+                    self._last_date,
+                )
+                self._last_date = None
 
         else:
             # If there's no data to display and no idle animation active

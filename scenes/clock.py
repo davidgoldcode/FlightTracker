@@ -26,7 +26,16 @@ class ClockScene(object):
         elif self._idle_drawn_this_frame:
             # An idle animation (holiday, ambient) is active - don't draw clock
             # The idle animation owns the whole screen
-            self._last_time = None
+            if self._last_time is not None:
+                _ = graphics.DrawText(
+                    self.canvas,
+                    CLOCK_FONT,
+                    CLOCK_POSITION[0],
+                    CLOCK_POSITION[1],
+                    colours.BLACK,
+                    self._last_time,
+                )
+                self._last_time = None
 
         else:
             # If there's no data to display and no idle animation active

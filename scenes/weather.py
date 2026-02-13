@@ -352,8 +352,17 @@ class WeatherScene(object):
             return
 
         if self._idle_drawn_this_frame:
-            # An idle animation is active - don't draw temperature
-            self._last_temperature_str = None
+            # An idle animation is active - erase and don't draw temperature
+            if self._last_temperature_str is not None:
+                _ = graphics.DrawText(
+                    self.canvas,
+                    TEMPERATURE_FONT,
+                    TEMPERATURE_POSITION[0],
+                    TEMPERATURE_POSITION[1],
+                    colours.BLACK,
+                    self._last_temperature_str,
+                )
+                self._last_temperature_str = None
             return
 
         if not (count % TEMPERATURE_REFRESH_SECONDS):
