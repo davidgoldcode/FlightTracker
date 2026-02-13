@@ -120,7 +120,7 @@ class Display(
         options.parallel = 1
         options.row_address_type = 0
         options.multiplexing = 0
-        options.pwm_bits = 11
+        options.pwm_bits = 7
         options.brightness = BRIGHTNESS
         options.pwm_lsb_nanoseconds = 130
         options.led_rgb_sequence = LED_RGB_SEQUENCE
