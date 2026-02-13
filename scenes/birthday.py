@@ -194,7 +194,7 @@ class BirthdayScene(object):
                 else:
                     name, days, is_today = demo_name, self._scenario_days, False
             else:
-                demo_name = self._scenario_name or "Demo"
+                demo_name = self._scenario_name or "Jane Doe"
                 name, days, is_today = demo_name, 3, False
         else:
             name, days, is_today = self._check_birthday_or_countdown()
