@@ -127,6 +127,10 @@ class FallingSnowScene(object):
         if not DEMO_MODE and not _is_snowy_morning():
             return
 
+        # love messages take priority when active
+        if self._msg_active:
+            return
+
         # mutual exclusion - only one idle animation per frame
         if self._idle_drawn_this_frame:
             return
