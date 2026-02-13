@@ -125,6 +125,10 @@ class FireplaceScene(object):
         if not DEMO_MODE and not _is_quiet_hours():
             return
 
+        # love messages take priority when active
+        if self._msg_active:
+            return
+
         # mutual exclusion - only one idle animation per frame
         if self._idle_drawn_this_frame:
             return
