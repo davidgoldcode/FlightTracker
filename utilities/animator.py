@@ -1,6 +1,8 @@
+import time
 from time import sleep
 
 DELAY_DEFAULT = 0.01
+IDLE_CYCLE_SECONDS = 10  # rotate between special occasion scenes
 
 # reserved screen regions that persistent scenes use
 # idle animations must clear these areas before drawing
@@ -26,9 +28,42 @@ class Animator(object):
         # mutual exclusion: only one idle animation draws per frame
         self._idle_drawn_this_frame = False
 
+        # special occasion cycling (birthdays + holidays rotate)
+        self._special_candidates_prev = []
+        self._special_candidates_curr = []
+        self._special_winner = None
+
         self._register_keyframes()
 
         super().__init__()
+
+    def _resolve_special_occasion_cycle(self):
+        """Pick which special occasion scene draws this frame.
+
+        Uses previous frame's candidates since we can't know all
+        candidates until after they've all registered.
+        """
+        self._special_candidates_prev = self._special_candidates_curr
+        self._special_candidates_curr = []
+        if self._special_candidates_prev:
+            slot = int(time.time() // IDLE_CYCLE_SECONDS)
+            idx = slot % len(self._special_candidates_prev)
+            self._special_winner = self._special_candidates_prev[idx]
+        else:
+            self._special_winner = None
+
+    def _register_special_occasion(self, scene_name):
+        """Register as a special occasion candidate and check if it's our turn.
+
+        Returns True if this scene should draw, False otherwise.
+        """
+        self._special_candidates_curr.append(scene_name)
+        if self._special_winner != scene_name:
+            return False
+        if self._idle_drawn_this_frame:
+            return False
+        self._idle_drawn_this_frame = True
+        return True
 
     def clear_clock_region(self, drawn_pixels=None):
         """Clear the clock region (y=0-10) to prevent overlap with idle animations.
@@ -77,6 +112,7 @@ class Animator(object):
         while True:
             # reset idle animation flag each frame
             self._idle_drawn_this_frame = False
+            self._resolve_special_occasion_cycle()
 
             for keyframe in self.keyframes:
                 # If divisor == 0 then only run once on first loop
