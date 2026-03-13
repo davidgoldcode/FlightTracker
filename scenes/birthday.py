@@ -105,6 +105,8 @@ class BirthdayScene(object):
         self._birthday_name = None
         self._birthday_confetti = [Confetti() for _ in range(30)]
         self._birthday_scroll_x = 64
+        self._birthday_countdown_scroll_x = None
+        self._birthday_countdown_pause = 0
         self._last_birthday_pixels = []
         self._flame_phase = 0
         # for testing scenarios
@@ -322,10 +324,35 @@ class BirthdayScene(object):
             for y in range(6, 14):
                 drawn_pixels.append((x, y))
 
-        # line 2: "Name's bday"
+        # line 2: "Name's bday" - scroll if too wide for display
         line2 = f"{name}'s bday"
         line2_color = graphics.Color(255, 200, 100)
-        graphics.DrawText(self.canvas, fonts.extrasmall, 2, 24, line2_color, line2)
-        for x in range(2, min(64, 2 + len(line2) * 5)):
+        line2_width = len(line2) * 5
+        max_width = 60  # 64px minus 2px margin on each side
+
+        if line2_width <= max_width:
+            # fits on screen, draw static
+            graphics.DrawText(self.canvas, fonts.extrasmall, 2, 24, line2_color, line2)
+        else:
+            # too wide, scroll with pause at start
+            if self._birthday_countdown_scroll_x is None:
+                self._birthday_countdown_scroll_x = 2
+                self._birthday_countdown_pause = 30  # ~3 seconds pause at start
+
+            if self._birthday_countdown_pause > 0:
+                self._birthday_countdown_pause -= 1
+                graphics.DrawText(self.canvas, fonts.extrasmall, 2, 24, line2_color, line2)
+            else:
+                graphics.DrawText(
+                    self.canvas, fonts.extrasmall,
+                    int(self._birthday_countdown_scroll_x), 24,
+                    line2_color, line2
+                )
+                self._birthday_countdown_scroll_x -= 0.5
+                # reset when fully scrolled off
+                if self._birthday_countdown_scroll_x < -line2_width:
+                    self._birthday_countdown_scroll_x = None
+
+        for x in range(64):
             for y in range(18, 26):
                 drawn_pixels.append((x, y))
