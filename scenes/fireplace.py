@@ -111,7 +111,7 @@ class FireplaceScene(object):
         factor = intensity / 255
         return (int(r * factor), int(g * factor), int(b * factor))
 
-    @Animator.KeyFrame.add(2)
+    @Animator.KeyFrame.add(4)
     def fireplace(self, count):
         # only show when no flights overhead
         if len(self._data):
