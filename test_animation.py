@@ -239,7 +239,7 @@ def main():
                     self._scenario_days = svalue
 
         @Animator.KeyFrame.add(1)
-        def sync(self, count):
+        def zzz_sync(self, count):
             self.matrix.SwapOnVSync(self.canvas)
 
         def run(self):

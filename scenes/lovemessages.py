@@ -188,8 +188,9 @@ class LoveMessagesScene(object):
         self._idle_drawn_this_frame = True
 
         # clear regions to prevent clock/date bleed-through
-        self.clear_clock_region()
-        self.clear_date_region()
+        drawn_pixels = []
+        self.clear_clock_region(drawn_pixels)
+        self.clear_date_region(drawn_pixels)
 
         # clear text area for redraw
         for x in range(64):

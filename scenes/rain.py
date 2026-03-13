@@ -97,12 +97,12 @@ class RainScene(object):
         if random.random() < LIGHTNING_CHANCE:
             self._lightning_frames = LIGHTNING_DURATION
 
-        # dark stormy background (subtle)
+        # dark stormy background (deterministic clouds)
         for x in range(64):
             for y in range(10):
-                # dark clouds at top
                 cloud_intensity = int(15 * (1 - y / 10))
-                if random.random() < 0.3:  # sparse clouds
+                # deterministic cloud pattern using position-based hash
+                if ((x * 7 + y * 13 + count) % 10) < 3:
                     self.canvas.SetPixel(x, y, cloud_intensity, cloud_intensity, cloud_intensity + 5)
                     drawn_pixels.append((x, y))
 
