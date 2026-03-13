@@ -22,6 +22,8 @@ from scenes.oceanwaves import OceanWavesScene
 from scenes.fallingsnow import FallingSnowScene
 from scenes.aurora import AuroraScene
 from scenes.fireplace import FireplaceScene
+from scenes.candlelight import CandlelightScene
+from scenes.moonrise import MoonriseScene
 from scenes.rain import RainScene
 from scenes.birthday import BirthdayScene
 from scenes.anniversary import AnniversaryScene
@@ -94,6 +96,8 @@ class Display(
     FallingSnowScene,
     AuroraScene,
     FireplaceScene,
+    CandlelightScene,
+    MoonriseScene,
     RainScene,
     BirthdayScene,
     AnniversaryScene,

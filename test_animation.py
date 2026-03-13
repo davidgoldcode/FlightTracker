@@ -103,6 +103,8 @@ ANIMATIONS = {
     'fallingsnow': 'scenes.fallingsnow.FallingSnowScene',
     'aurora': 'scenes.aurora.AuroraScene',
     'fireplace': 'scenes.fireplace.FireplaceScene',
+    'candlelight': 'scenes.candlelight.CandlelightScene',
+    'moonrise': 'scenes.moonrise.MoonriseScene',
     'rain': 'scenes.rain.RainScene',
     'birthday': 'scenes.birthday.BirthdayScene',
     'anniversary': 'scenes.anniversary.AnniversaryScene',
