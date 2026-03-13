@@ -43,11 +43,11 @@ def _load_quotes():
     try:
         from config import QUOTES
         if not isinstance(QUOTES, (list, tuple)):
-            return DEFAULT_QUOTES
+            return []
         valid = [q for q in QUOTES if isinstance(q, str) and q.strip()]
-        return valid if valid else DEFAULT_QUOTES
+        return valid
     except (ImportError, NameError, AttributeError):
-        return DEFAULT_QUOTES
+        return []
 
 
 def _is_demo_mode():
