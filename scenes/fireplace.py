@@ -111,7 +111,7 @@ class FireplaceScene(object):
         factor = intensity / 255
         return (int(r * factor), int(g * factor), int(b * factor))
 
-    @Animator.KeyFrame.add(3)
+    @Animator.KeyFrame.add(5)
     def fireplace(self, count):
         # only show when no flights overhead
         if len(self._data):
@@ -137,10 +137,9 @@ class FireplaceScene(object):
                 self._last_fire_pixels = []
             return
 
-        # mutual exclusion - only one idle animation per frame
-        if self._idle_drawn_this_frame:
+        # quiet-hours ambient cycling
+        if not self._register_quiet_ambient('fireplace'):
             return
-        self._idle_drawn_this_frame = True
 
         if not self._fire_initialized:
             self._init_fire()
