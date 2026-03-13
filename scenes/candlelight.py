@@ -14,99 +14,36 @@ def _is_demo_mode():
 
 DEMO_MODE = _is_demo_mode()
 
-# candle positions across the display (x, base_y, height)
-CANDLES = [
-    (8, 28, 6),
-    (20, 29, 5),
-    (32, 27, 7),
-    (44, 29, 5),
-    (56, 28, 6),
-]
+# single centered candle
+CANDLE_X = 32
+CANDLE_BASE_Y = 30
+CANDLE_HEIGHT = 10
 
-# warm candle colors
-CANDLE_BODY = (180, 170, 140)  # cream/wax
-CANDLE_WICK = (60, 40, 20)
+# candle body color
+CANDLE_BODY = (160, 150, 120)
+CANDLE_BODY_DIM = (100, 90, 70)
+CANDLE_WICK = (50, 35, 15)
 
-# flame color layers (inner to outer)
-FLAME_COLORS = [
-    (255, 255, 200),  # white-yellow core
+# flame color gradient (bottom to tip)
+FLAME_GRADIENT = [
+    (200, 80, 10),    # dark orange base
+    (255, 140, 20),   # orange
+    (255, 190, 50),   # yellow-orange
     (255, 220, 100),  # bright yellow
-    (255, 160, 40),   # orange
-    (200, 80, 10),    # dark orange glow
+    (255, 245, 180),  # white-yellow core
+    (255, 255, 220),  # near-white tip
 ]
 
-# warm ambient glow on nearby surfaces
-GLOW_COLOR = (40, 20, 5)
-
-
-class Candle:
-    def __init__(self, x, base_y, height):
-        self.x = x
-        self.base_y = base_y
-        self.height = height
-        self.phase = random.uniform(0, 2 * math.pi)
-        self.flicker_speed = random.uniform(0.08, 0.15)
-        self.sway = 0.0
-        self.sway_speed = random.uniform(0.03, 0.06)
+# warm glow color
+GLOW_WARM = (50, 25, 5)
 
 
 class CandlelightScene(object):
     def __init__(self):
         super().__init__()
-        self._candles = [Candle(x, y, h) for x, y, h in CANDLES]
+        self._candle_phase = random.uniform(0, 2 * math.pi)
+        self._candle_sway_phase = random.uniform(0, 2 * math.pi)
         self._last_candle_pixels = []
-
-    def _draw_flame(self, drawn_pixels, cx, tip_y, brightness, sway_offset):
-        """Draw a flickering flame at the given position."""
-        # flame is 3 pixels wide, 3-4 tall depending on flicker
-        flame_height = 3 + int(brightness * 1.5)
-        sway = int(sway_offset)
-
-        for dy in range(flame_height):
-            fy = tip_y - dy
-            if not (0 <= fy < 32):
-                continue
-
-            # flame narrows toward the top
-            if dy < 2:
-                width = 1
-            elif dy < flame_height - 1:
-                width = 2
-            else:
-                width = 1
-
-            # pick color based on height in flame
-            color_idx = min(dy, len(FLAME_COLORS) - 1)
-            r, g, b = FLAME_COLORS[color_idx]
-
-            # apply brightness variation
-            r = int(r * (0.6 + 0.4 * brightness))
-            g = int(g * (0.6 + 0.4 * brightness))
-            b = int(b * (0.6 + 0.4 * brightness))
-
-            for dx in range(-width // 2, width // 2 + 1):
-                px = cx + dx + sway
-                if 0 <= px < 64:
-                    self.canvas.SetPixel(px, fy, r, g, b)
-                    drawn_pixels.append((px, fy))
-
-    def _draw_glow(self, drawn_pixels, cx, base_y, brightness):
-        """Draw subtle warm glow around candle base."""
-        glow_radius = 4
-        for dx in range(-glow_radius, glow_radius + 1):
-            for dy in range(-2, 3):
-                px = cx + dx
-                py = base_y + dy
-                if 0 <= px < 64 and 0 <= py < 32:
-                    dist = math.sqrt(dx * dx + dy * dy)
-                    if dist <= glow_radius:
-                        factor = (1 - dist / glow_radius) * brightness * 0.5
-                        r = int(GLOW_COLOR[0] * factor)
-                        g = int(GLOW_COLOR[1] * factor)
-                        b = int(GLOW_COLOR[2] * factor)
-                        if r > 0 or g > 0:
-                            self.canvas.SetPixel(px, py, r, g, b)
-                            drawn_pixels.append((px, py))
 
     @Animator.KeyFrame.add(2)
     def candlelight(self, count):
@@ -134,45 +71,109 @@ class CandlelightScene(object):
         self.clear_clock_region(drawn_pixels)
         self.clear_date_region(drawn_pixels)
 
-        for candle in self._candles:
-            candle.phase += candle.flicker_speed
-            candle.sway += candle.sway_speed
+        # advance animation
+        self._candle_phase += 0.08
+        self._candle_sway_phase += 0.03
 
-            # flicker brightness (gentle, not erratic)
-            brightness = 0.6 + 0.4 * ((math.sin(candle.phase) + 1) / 2)
-            # occasional deeper flicker
-            if random.random() < 0.02:
-                brightness *= 0.5
+        # gentle brightness variation
+        brightness = 0.7 + 0.3 * ((math.sin(self._candle_phase) + 1) / 2)
+        # occasional subtle dim
+        if random.random() < 0.01:
+            brightness *= 0.6
+        sway = math.sin(self._candle_sway_phase) * 1.2
 
-            sway_offset = math.sin(candle.sway) * 0.8
+        # draw warm ambient glow (large soft circle behind candle)
+        glow_cx = CANDLE_X
+        glow_cy = CANDLE_BASE_Y - CANDLE_HEIGHT - 2
+        glow_radius = 18
+        for dx in range(-glow_radius, glow_radius + 1):
+            for dy in range(-glow_radius, glow_radius + 1):
+                px = glow_cx + dx
+                py = glow_cy + dy
+                if not (0 <= px < 64 and 0 <= py < 32):
+                    continue
+                dist = math.sqrt(dx * dx + dy * dy)
+                if dist > glow_radius:
+                    continue
+                factor = (1 - dist / glow_radius) ** 2 * brightness * 0.4
+                r = int(GLOW_WARM[0] * factor)
+                g = int(GLOW_WARM[1] * factor)
+                b = int(GLOW_WARM[2] * factor)
+                if r > 0 or g > 0:
+                    self.canvas.SetPixel(px, py, r, g, b)
+                    drawn_pixels.append((px, py))
 
-            # draw candle body
-            for dy in range(candle.height):
-                py = candle.base_y - dy
-                if 0 <= py < 32:
-                    r, g, b = CANDLE_BODY
-                    self.canvas.SetPixel(candle.x, py, r, g, b)
-                    drawn_pixels.append((candle.x, py))
-                    # wider base
-                    if dy < candle.height // 2:
-                        for dx in [-1, 1]:
-                            px = candle.x + dx
-                            if 0 <= px < 64:
-                                self.canvas.SetPixel(px, py, r // 2, g // 2, b // 2)
-                                drawn_pixels.append((px, py))
+        # draw candle body (3px wide, tapers at top)
+        for dy in range(CANDLE_HEIGHT):
+            py = CANDLE_BASE_Y - dy
+            if not (0 <= py < 32):
+                continue
+            # wider at base, narrower at top
+            if dy < CANDLE_HEIGHT * 0.4:
+                half_width = 2
+            elif dy < CANDLE_HEIGHT * 0.7:
+                half_width = 1
+            else:
+                half_width = 1
+            for dx in range(-half_width, half_width + 1):
+                px = CANDLE_X + dx
+                if 0 <= px < 64:
+                    if dx == 0:
+                        r, g, b = CANDLE_BODY
+                    else:
+                        r, g, b = CANDLE_BODY_DIM
+                    self.canvas.SetPixel(px, py, r, g, b)
+                    drawn_pixels.append((px, py))
 
-            # draw wick
-            wick_y = candle.base_y - candle.height
-            if 0 <= wick_y < 32:
-                r, g, b = CANDLE_WICK
-                self.canvas.SetPixel(candle.x, wick_y, r, g, b)
-                drawn_pixels.append((candle.x, wick_y))
+        # draw wick
+        wick_y = CANDLE_BASE_Y - CANDLE_HEIGHT
+        if 0 <= wick_y < 32:
+            self.canvas.SetPixel(CANDLE_X, wick_y, *CANDLE_WICK)
+            drawn_pixels.append((CANDLE_X, wick_y))
 
-            # draw flame above wick
-            flame_tip_y = wick_y - 1
-            self._draw_flame(drawn_pixels, candle.x, flame_tip_y, brightness, sway_offset)
+        # draw flame (larger, more detailed)
+        flame_base_y = wick_y - 1
+        flame_height = 6 + int(brightness * 2)
+        sway_int = int(sway)
 
-            # draw glow
-            self._draw_glow(drawn_pixels, candle.x, candle.base_y, brightness)
+        for dy in range(flame_height):
+            fy = flame_base_y - dy
+            if not (0 <= fy < 32):
+                continue
+
+            # flame width narrows toward tip
+            progress = dy / flame_height  # 0 at base, 1 at tip
+            if progress < 0.3:
+                half_w = 2
+            elif progress < 0.6:
+                half_w = 1
+            else:
+                half_w = 0
+
+            # pick color from gradient
+            color_idx = int(progress * (len(FLAME_GRADIENT) - 1))
+            color_idx = max(0, min(len(FLAME_GRADIENT) - 1, color_idx))
+            r, g, b = FLAME_GRADIENT[color_idx]
+
+            # apply brightness
+            r = int(r * (0.5 + 0.5 * brightness))
+            g = int(g * (0.5 + 0.5 * brightness))
+            b = int(b * (0.5 + 0.5 * brightness))
+
+            # sway increases toward tip
+            tip_sway = int(sway * progress)
+
+            for dx in range(-half_w, half_w + 1):
+                px = CANDLE_X + dx + tip_sway
+                if 0 <= px < 64:
+                    # edges are dimmer
+                    if dx != 0 and half_w > 0:
+                        r2 = r * 2 // 3
+                        g2 = g * 2 // 3
+                        b2 = b * 2 // 3
+                        self.canvas.SetPixel(px, fy, r2, g2, b2)
+                    else:
+                        self.canvas.SetPixel(px, fy, r, g, b)
+                    drawn_pixels.append((px, fy))
 
         self._last_candle_pixels = drawn_pixels
