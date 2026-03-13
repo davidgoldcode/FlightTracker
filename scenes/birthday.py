@@ -1,8 +1,10 @@
 import math
 import random
+import time
 from datetime import datetime
-from utilities.animator import Animator
+from utilities.animator import Animator, IDLE_CYCLE_SECONDS
 from utilities.datenow import get_now
+from utilities.quiethours import should_display_be_dim
 from setup import colours, frames, fonts
 from rgbmatrix import graphics
 
@@ -150,12 +152,13 @@ class BirthdayScene(object):
         except (ValueError, AttributeError):
             return None
 
-    def _check_birthday_or_countdown(self):
-        """Check if today is someone's birthday OR within countdown range.
+    def _get_all_active_birthdays(self):
+        """Get all active birthdays (today or within countdown range).
 
-        Returns: (name, days_until, is_today) or (None, None, False)
+        Returns: list of (name, days_until, is_today) tuples
         """
         today = get_now().strftime("%m-%d")
+        active = []
 
         for name, date_val in BIRTHDAYS.items():
             date, countdown_days = self._get_birthday_info(name, date_val)
@@ -165,15 +168,16 @@ class BirthdayScene(object):
 
             # check if today is the birthday
             if date == today:
-                return (name, 0, True)
+                active.append((name, 0, True))
+                continue
 
             # check countdown (only for OTHER_BIRTHDAYS, not Me/Partner)
             if name not in ("Me", "Partner") and countdown_days > 0:
                 days = self._get_days_until(date)
                 if days is not None and 0 < days <= countdown_days:
-                    return (name, days, False)
+                    active.append((name, days, False))
 
-        return (None, None, False)
+        return active
 
     @Animator.KeyFrame.add(1)
     def birthday(self, count):
@@ -190,21 +194,28 @@ class BirthdayScene(object):
             demo_name = self._scenario_name or "Mom"
             if self._scenario_days is not None:
                 if self._scenario_days == 0:
-                    name, days, is_today = demo_name, 0, True
+                    active = [(demo_name, 0, True)]
                 else:
-                    name, days, is_today = demo_name, self._scenario_days, False
+                    active = [(demo_name, self._scenario_days, False)]
             else:
                 demo_name = self._scenario_name or "Jane Doe"
-                name, days, is_today = demo_name, 3, False
+                active = [(demo_name, 3, False)]
         else:
-            name, days, is_today = self._check_birthday_or_countdown()
-            if name is None:
+            # yield to fireplace during quiet hours
+            if should_display_be_dim():
                 return
 
-        # mutual exclusion - only one idle animation per frame
-        if self._idle_drawn_this_frame:
+            active = self._get_all_active_birthdays()
+            if not active:
+                return
+
+        # special occasion cycling (rotates with holidays)
+        if not self._register_special_occasion('birthday'):
             return
-        self._idle_drawn_this_frame = True
+
+        # cycle between multiple active birthdays
+        slot = int(time.time() // IDLE_CYCLE_SECONDS)
+        name, days, is_today = active[slot % len(active)]
 
         drawn_pixels = []
 
