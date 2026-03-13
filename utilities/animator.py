@@ -3,6 +3,7 @@ from time import sleep
 
 DELAY_DEFAULT = 0.01
 IDLE_CYCLE_SECONDS = 10  # rotate between special occasion scenes
+QUIET_AMBIENT_CYCLE_SECONDS = 300  # rotate quiet-hours ambient scenes every 5 minutes
 
 # reserved screen regions that persistent scenes use
 # idle animations must clear these areas before drawing
@@ -33,6 +34,11 @@ class Animator(object):
         self._special_candidates_curr = []
         self._special_winner = None
 
+        # quiet-hours ambient cycling (fireplace, starfield, etc.)
+        self._quiet_ambient_candidates_prev = []
+        self._quiet_ambient_candidates_curr = []
+        self._quiet_ambient_winner = None
+
         self._register_keyframes()
 
         super().__init__()
@@ -59,6 +65,30 @@ class Animator(object):
         """
         self._special_candidates_curr.append(scene_name)
         if self._special_winner != scene_name:
+            return False
+        if self._idle_drawn_this_frame:
+            return False
+        self._idle_drawn_this_frame = True
+        return True
+
+    def _resolve_quiet_ambient_cycle(self):
+        """Pick which quiet-hours ambient scene draws this frame."""
+        self._quiet_ambient_candidates_prev = self._quiet_ambient_candidates_curr
+        self._quiet_ambient_candidates_curr = []
+        if self._quiet_ambient_candidates_prev:
+            slot = int(time.time() // QUIET_AMBIENT_CYCLE_SECONDS)
+            idx = slot % len(self._quiet_ambient_candidates_prev)
+            self._quiet_ambient_winner = self._quiet_ambient_candidates_prev[idx]
+        else:
+            self._quiet_ambient_winner = None
+
+    def _register_quiet_ambient(self, scene_name):
+        """Register as a quiet-hours ambient candidate and check if it's our turn.
+
+        Returns True if this scene should draw, False otherwise.
+        """
+        self._quiet_ambient_candidates_curr.append(scene_name)
+        if self._quiet_ambient_winner != scene_name:
             return False
         if self._idle_drawn_this_frame:
             return False
@@ -113,6 +143,7 @@ class Animator(object):
             # reset idle animation flag each frame
             self._idle_drawn_this_frame = False
             self._resolve_special_occasion_cycle()
+            self._resolve_quiet_ambient_cycle()
 
             for keyframe in self.keyframes:
                 # If divisor == 0 then only run once on first loop
