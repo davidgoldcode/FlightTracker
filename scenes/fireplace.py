@@ -153,44 +153,53 @@ class FireplaceScene(object):
         self.clear_clock_region(drawn_pixels)
         self.clear_date_region(drawn_pixels)
 
-        # generate intense heat at bottom (fire source)
+        # generate heat at bottom (fire source)
         for x in range(FIRE_WIDTH):
             # center burns hotter
             center_dist = abs(x - FIRE_WIDTH // 2)
-            center_bonus = max(0, 30 - center_dist)
+            center_bonus = max(0, 25 - center_dist)
 
-            # base heat with variation
-            heat = random.randint(220, 255) + center_bonus
+            # smooth base heat with gentle variation
+            heat = random.randint(230, 250) + center_bonus
             heat = min(255, heat)
 
-            # occasional cooler spots for flicker
-            if random.random() < 0.15:
-                heat = random.randint(180, 220)
+            # occasional slightly cooler spots (subtle, not harsh)
+            if random.random() < 0.08:
+                heat = random.randint(210, 240)
 
             self._fire_grid[FIRE_HEIGHT - 1][x] = heat
-            # also seed the row above for taller flames
-            if random.random() < 0.7:
-                self._fire_grid[FIRE_HEIGHT - 2][x] = random.randint(200, 255)
+            # seed the row above for taller flames
+            if random.random() < 0.6:
+                self._fire_grid[FIRE_HEIGHT - 2][x] = random.randint(210, 245)
 
-        # propagate fire upward with gentler cooling
+        # propagate fire upward with smooth cooling
         for y in range(FIRE_HEIGHT - 3, -1, -1):
             for x in range(FIRE_WIDTH):
-                # sample from below with wind drift
-                below_left = self._fire_grid[y + 1][max(0, x - 1)]
-                below = self._fire_grid[y + 1][x]
-                below_right = self._fire_grid[y + 1][min(FIRE_WIDTH - 1, x + 1)]
-                below_far = self._fire_grid[min(FIRE_HEIGHT - 1, y + 2)][x]
+                # wider sampling for smoother result
+                x_left2 = max(0, x - 2)
+                x_left = max(0, x - 1)
+                x_right = min(FIRE_WIDTH - 1, x + 1)
+                x_right2 = min(FIRE_WIDTH - 1, x + 2)
+                y_below = y + 1
+                y_below2 = min(FIRE_HEIGHT - 1, y + 2)
 
-                # weighted average favoring center column
-                avg = (below_left + below * 3 + below_right + below_far) // 6
+                # weighted average with wider kernel for smoothness
+                avg = (
+                    self._fire_grid[y_below][x_left2]
+                    + self._fire_grid[y_below][x_left] * 2
+                    + self._fire_grid[y_below][x] * 4
+                    + self._fire_grid[y_below][x_right] * 2
+                    + self._fire_grid[y_below][x_right2]
+                    + self._fire_grid[y_below2][x] * 2
+                ) // 12
 
-                # gentler cooling that increases with height
-                height_factor = y / FIRE_HEIGHT  # 0 at bottom, 1 at top
-                cooling = random.randint(3, 12) + int(height_factor * 15)
+                # smooth cooling that increases with height
+                height_factor = 1 - (y / FIRE_HEIGHT)  # 0 at bottom, 1 at top
+                cooling = random.randint(4, 8) + int(height_factor * 12)
 
-                # add random flicker/turbulence
-                if random.random() < 0.1:
-                    avg += random.randint(-20, 30)
+                # very subtle turbulence (small range, low frequency)
+                if random.random() < 0.05:
+                    avg += random.randint(-8, 12)
 
                 self._fire_grid[y][x] = max(0, min(255, avg - cooling))
 
