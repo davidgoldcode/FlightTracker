@@ -83,6 +83,9 @@ class AuroraScene(object):
         for px, py in self._last_aurora_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
+        self.clear_clock_region(drawn_pixels)
+        self.clear_date_region(drawn_pixels)
+
         # draw each band
         for band in self._aurora_bands:
             band.phase += band.freq

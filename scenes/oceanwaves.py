@@ -58,6 +58,9 @@ class OceanWavesScene(object):
         for px, py in self._last_wave_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
+        self.clear_clock_region(drawn_pixels)
+        self.clear_date_region(drawn_pixels)
+
         self._wave_phase += WAVE_SPEED
 
         # draw multiple wave layers from bottom to top

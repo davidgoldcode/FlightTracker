@@ -100,6 +100,9 @@ class StarfieldScene(object):
         for px, py in self._last_star_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
+        self.clear_clock_region(drawn_pixels)
+        self.clear_date_region(drawn_pixels)
+
         # update and draw stars
         for star in self._starfield_stars:
             star.phase += star.twinkle_speed

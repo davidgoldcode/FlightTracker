@@ -78,6 +78,9 @@ class RainScene(object):
         for px, py in self._last_rain_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
+        self.clear_clock_region(drawn_pixels)
+        self.clear_date_region(drawn_pixels)
+
         # check for lightning
         if self._lightning_frames > 0:
             self._lightning_frames -= 1

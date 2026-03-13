@@ -72,6 +72,9 @@ class TimeOfDayScene(object):
         for px, py in self._last_tod_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
+        self.clear_clock_region(drawn_pixels)
+        self.clear_date_region(drawn_pixels)
+
         period, sky_colors, ground_color = self._get_period()
         hour = get_now().hour
 
