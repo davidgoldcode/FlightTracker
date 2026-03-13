@@ -167,10 +167,9 @@ class ChanukahScene(object):
         if night == 0:
             return
 
-        # mutual exclusion - only one idle animation per frame
-        if self._idle_drawn_this_frame:
+        # special occasion cycling (rotates with birthdays)
+        if not self._register_special_occasion('chanukah'):
             return
-        self._idle_drawn_this_frame = True
 
         drawn_pixels = []
 

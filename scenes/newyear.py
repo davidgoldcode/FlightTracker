@@ -120,10 +120,9 @@ class NewYearScene(object):
         if not self._is_new_years_eve():
             return
 
-        # mutual exclusion - only one idle animation per frame
-        if self._idle_drawn_this_frame:
+        # special occasion cycling (rotates with birthdays)
+        if not self._register_special_occasion('newyear'):
             return
-        self._idle_drawn_this_frame = True
 
         countdown = self._get_countdown()
         if countdown is None and not DEMO_MODE:

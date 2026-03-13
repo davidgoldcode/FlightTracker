@@ -187,10 +187,9 @@ class ChineseNewYearScene(object):
         if not is_cny:
             return
 
-        # mutual exclusion - only one idle animation per frame
-        if self._idle_drawn_this_frame:
+        # special occasion cycling (rotates with birthdays)
+        if not self._register_special_occasion('chinese_new_year'):
             return
-        self._idle_drawn_this_frame = True
 
         drawn_pixels = []
 

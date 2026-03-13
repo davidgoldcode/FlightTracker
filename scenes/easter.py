@@ -143,10 +143,9 @@ class EasterScene(object):
         if not self._is_easter():
             return
 
-        # mutual exclusion - only one idle animation per frame
-        if self._idle_drawn_this_frame:
+        # special occasion cycling (rotates with birthdays)
+        if not self._register_special_occasion('easter'):
             return
-        self._idle_drawn_this_frame = True
 
         drawn_pixels = []
 

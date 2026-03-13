@@ -118,10 +118,9 @@ class AnniversaryScene(object):
             if days > 7 and not self._is_anniversary_today():
                 return
 
-        # mutual exclusion - only one idle animation per frame
-        if self._idle_drawn_this_frame:
+        # special occasion cycling (rotates with birthdays/holidays)
+        if not self._register_special_occasion('anniversary'):
             return
-        self._idle_drawn_this_frame = True
 
         drawn_pixels = []
 
