@@ -143,9 +143,10 @@ class EasterScene(object):
         if not self._is_easter():
             return
 
-        # special occasion cycling (rotates with birthdays)
-        if not self._register_special_occasion('easter'):
+        # mutual exclusion - only one idle animation per frame
+        if self._idle_drawn_this_frame:
             return
+        self._idle_drawn_this_frame = True
 
         drawn_pixels = []
 
@@ -153,7 +154,6 @@ class EasterScene(object):
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
         self.clear_clock_region(drawn_pixels)
-        self.clear_date_region(drawn_pixels)
 
         self._easter_phase += 0.1
         self._bunny_hop += 0.15

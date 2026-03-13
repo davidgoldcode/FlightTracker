@@ -22,8 +22,6 @@ from scenes.oceanwaves import OceanWavesScene
 from scenes.fallingsnow import FallingSnowScene
 from scenes.aurora import AuroraScene
 from scenes.fireplace import FireplaceScene
-from scenes.candlelight import CandlelightScene
-from scenes.moonrise import MoonriseScene
 from scenes.rain import RainScene
 from scenes.birthday import BirthdayScene
 from scenes.anniversary import AnniversaryScene
@@ -96,8 +94,6 @@ class Display(
     FallingSnowScene,
     AuroraScene,
     FireplaceScene,
-    CandlelightScene,
-    MoonriseScene,
     RainScene,
     BirthdayScene,
     AnniversaryScene,
@@ -124,7 +120,7 @@ class Display(
         options.parallel = 1
         options.row_address_type = 0
         options.multiplexing = 0
-        options.pwm_bits = 7
+        options.pwm_bits = 11
         options.brightness = BRIGHTNESS
         options.pwm_lsb_nanoseconds = 130
         options.led_rgb_sequence = LED_RGB_SEQUENCE
@@ -194,8 +190,8 @@ class Display(
                 self.reset_scene()
 
     @Animator.KeyFrame.add(1)
-    def zzzzz_sync(self, count):
-        # zzzzz_ prefix ensures this runs LAST, after all drawing is complete
+    def sync(self, count):
+        # Redraw screen every frame
         _ = self.matrix.SwapOnVSync(self.canvas)
 
     @Animator.KeyFrame.add(frames.PER_SECOND * 30)

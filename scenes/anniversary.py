@@ -118,9 +118,10 @@ class AnniversaryScene(object):
             if days > 7 and not self._is_anniversary_today():
                 return
 
-        # special occasion cycling (rotates with birthdays/holidays)
-        if not self._register_special_occasion('anniversary'):
+        # mutual exclusion - only one idle animation per frame
+        if self._idle_drawn_this_frame:
             return
+        self._idle_drawn_this_frame = True
 
         drawn_pixels = []
 
@@ -129,7 +130,6 @@ class AnniversaryScene(object):
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
         self.clear_clock_region(drawn_pixels)
-        self.clear_date_region(drawn_pixels)
 
         self._heart_phase += 0.1
 

@@ -72,9 +72,6 @@ class TimeOfDayScene(object):
         for px, py in self._last_tod_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
-        self.clear_clock_region(drawn_pixels)
-        self.clear_date_region(drawn_pixels)
-
         period, sky_colors, ground_color = self._get_period()
         hour = get_now().hour
 
@@ -113,7 +110,6 @@ class TimeOfDayScene(object):
                             g = int(220 * intensity)
                             b = int(100 * intensity)
                             self.canvas.SetPixel(px, py, r, g, b)
-                            drawn_pixels.append((px, py))
         else:
             # moon (white/gray crescent)
             moon_x = 50
@@ -127,7 +123,6 @@ class TimeOfDayScene(object):
                         py = moon_y + dy
                         if 0 <= px < 64 and 0 <= py < 32:
                             self.canvas.SetPixel(px, py, 230, 230, 200)
-                            drawn_pixels.append((px, py))
 
             # stars at night
             if period in ("night", "night_late", "dusk"):

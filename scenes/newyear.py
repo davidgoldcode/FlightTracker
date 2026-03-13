@@ -120,9 +120,10 @@ class NewYearScene(object):
         if not self._is_new_years_eve():
             return
 
-        # special occasion cycling (rotates with birthdays)
-        if not self._register_special_occasion('newyear'):
+        # mutual exclusion - only one idle animation per frame
+        if self._idle_drawn_this_frame:
             return
+        self._idle_drawn_this_frame = True
 
         countdown = self._get_countdown()
         if countdown is None and not DEMO_MODE:
@@ -135,7 +136,6 @@ class NewYearScene(object):
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
         self.clear_clock_region(drawn_pixels)
-        self.clear_date_region(drawn_pixels)
 
         self._newyear_phase += 0.15
 

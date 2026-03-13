@@ -1,14 +1,10 @@
-import time
 from time import sleep
 
 DELAY_DEFAULT = 0.01
-IDLE_CYCLE_SECONDS = 10  # rotate between special occasion scenes
-QUIET_AMBIENT_CYCLE_SECONDS = 300  # rotate quiet-hours ambient scenes every 5 minutes
 
 # reserved screen regions that persistent scenes use
 # idle animations must clear these areas before drawing
 CLOCK_REGION_Y = (0, 10)  # clock draws at y=0-8, we clear y=0-10 for safety
-DATE_REGION_Y = (25, 31)  # date draws at y=31, font extends up ~6px
 
 
 class Animator(object):
@@ -29,74 +25,9 @@ class Animator(object):
         # mutual exclusion: only one idle animation draws per frame
         self._idle_drawn_this_frame = False
 
-        # special occasion cycling (birthdays + holidays rotate)
-        self._special_candidates_prev = []
-        self._special_candidates_curr = []
-        self._special_winner = None
-
-        # quiet-hours ambient cycling (fireplace, starfield, etc.)
-        # uses a persistent set since scenes run at different frame rates
-        self._quiet_ambient_registered = set()
-        self._quiet_ambient_winner = None
-
         self._register_keyframes()
 
         super().__init__()
-
-    def _resolve_special_occasion_cycle(self):
-        """Pick which special occasion scene draws this frame.
-
-        Uses previous frame's candidates since we can't know all
-        candidates until after they've all registered.
-        """
-        self._special_candidates_prev = self._special_candidates_curr
-        self._special_candidates_curr = []
-        if self._special_candidates_prev:
-            slot = int(time.time() // IDLE_CYCLE_SECONDS)
-            idx = slot % len(self._special_candidates_prev)
-            self._special_winner = self._special_candidates_prev[idx]
-        else:
-            self._special_winner = None
-
-    def _register_special_occasion(self, scene_name):
-        """Register as a special occasion candidate and check if it's our turn.
-
-        Returns True if this scene should draw, False otherwise.
-        """
-        self._special_candidates_curr.append(scene_name)
-        if self._special_winner != scene_name:
-            return False
-        if self._idle_drawn_this_frame:
-            return False
-        self._idle_drawn_this_frame = True
-        return True
-
-    def _resolve_quiet_ambient_cycle(self):
-        """Pick which quiet-hours ambient scene draws this frame.
-
-        Uses a persistent set of registered scenes (not per-frame candidates)
-        because quiet-ambient scenes run at different frame rates.
-        """
-        if self._quiet_ambient_registered:
-            candidates = sorted(self._quiet_ambient_registered)
-            slot = int(time.time() // QUIET_AMBIENT_CYCLE_SECONDS)
-            idx = slot % len(candidates)
-            self._quiet_ambient_winner = candidates[idx]
-        else:
-            self._quiet_ambient_winner = None
-
-    def _register_quiet_ambient(self, scene_name):
-        """Register as a quiet-hours ambient candidate and check if it's our turn.
-
-        Returns True if this scene should draw, False otherwise.
-        """
-        self._quiet_ambient_registered.add(scene_name)
-        if self._quiet_ambient_winner != scene_name:
-            return False
-        if self._idle_drawn_this_frame:
-            return False
-        self._idle_drawn_this_frame = True
-        return True
 
     def clear_clock_region(self, drawn_pixels=None):
         """Clear the clock region (y=0-10) to prevent overlap with idle animations.
@@ -109,18 +40,6 @@ class Animator(object):
         """
         cleared = []
         y_start, y_end = CLOCK_REGION_Y
-        for x in range(64):
-            for y in range(y_start, y_end + 1):
-                self.canvas.SetPixel(x, y, 0, 0, 0)
-                cleared.append((x, y))
-        if drawn_pixels is not None:
-            drawn_pixels.extend(cleared)
-        return cleared
-
-    def clear_date_region(self, drawn_pixels=None):
-        """Clear the date region (y=25-31) to prevent overlap with idle animations."""
-        cleared = []
-        y_start, y_end = DATE_REGION_Y
         for x in range(64):
             for y in range(y_start, y_end + 1):
                 self.canvas.SetPixel(x, y, 0, 0, 0)
@@ -145,8 +64,6 @@ class Animator(object):
         while True:
             # reset idle animation flag each frame
             self._idle_drawn_this_frame = False
-            self._resolve_special_occasion_cycle()
-            self._resolve_quiet_ambient_cycle()
 
             for keyframe in self.keyframes:
                 # If divisor == 0 then only run once on first loop

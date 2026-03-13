@@ -103,8 +103,6 @@ ANIMATIONS = {
     'fallingsnow': 'scenes.fallingsnow.FallingSnowScene',
     'aurora': 'scenes.aurora.AuroraScene',
     'fireplace': 'scenes.fireplace.FireplaceScene',
-    'candlelight': 'scenes.candlelight.CandlelightScene',
-    'moonrise': 'scenes.moonrise.MoonriseScene',
     'rain': 'scenes.rain.RainScene',
     'birthday': 'scenes.birthday.BirthdayScene',
     'anniversary': 'scenes.anniversary.AnniversaryScene',
@@ -239,7 +237,7 @@ def main():
                     self._scenario_days = svalue
 
         @Animator.KeyFrame.add(1)
-        def zzz_sync(self, count):
+        def sync(self, count):
             self.matrix.SwapOnVSync(self.canvas)
 
         def run(self):

@@ -1,7 +1,6 @@
 import random
 import math
 from utilities.animator import Animator
-from utilities.quiethours import should_display_be_dim
 from setup import frames
 
 
@@ -82,13 +81,14 @@ class StarfieldScene(object):
                 self._last_star_pixels = []
             return
 
-        # only show during quiet hours or demo mode
-        if not DEMO_MODE and not should_display_be_dim():
+        # only show in demo/test mode
+        if not DEMO_MODE:
             return
 
-        # quiet-hours ambient cycling
-        if not self._register_quiet_ambient('starfield'):
+        # mutual exclusion - only one idle animation per frame
+        if self._idle_drawn_this_frame:
             return
+        self._idle_drawn_this_frame = True
 
         # initialize stars on first run
         if not self._starfield_initialized:
@@ -99,9 +99,6 @@ class StarfieldScene(object):
         # clear previous positions
         for px, py in self._last_star_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
-
-        self.clear_clock_region(drawn_pixels)
-        self.clear_date_region(drawn_pixels)
 
         # update and draw stars
         for star in self._starfield_stars:

@@ -86,14 +86,6 @@ class HeartbeatScene(object):
 
         # draw heart
         drawn_pixels = []
-
-        # clear previous heart pixels
-        for px, py in self._last_heart_pixels:
-            self.canvas.SetPixel(px, py, 0, 0, 0)
-
-        self.clear_clock_region(drawn_pixels)
-        self.clear_date_region(drawn_pixels)
-
         for hx, hy in HEART_PIXELS:
             px = HEART_OFFSET_X + hx
             py = HEART_OFFSET_Y + hy

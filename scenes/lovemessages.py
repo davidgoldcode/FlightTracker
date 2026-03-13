@@ -43,11 +43,11 @@ def _load_quotes():
     try:
         from config import QUOTES
         if not isinstance(QUOTES, (list, tuple)):
-            return []
+            return DEFAULT_QUOTES
         valid = [q for q in QUOTES if isinstance(q, str) and q.strip()]
-        return valid
+        return valid if valid else DEFAULT_QUOTES
     except (ImportError, NameError, AttributeError):
-        return []
+        return DEFAULT_QUOTES
 
 
 def _is_demo_mode():
@@ -186,11 +186,6 @@ class LoveMessagesScene(object):
         if self._idle_drawn_this_frame:
             return
         self._idle_drawn_this_frame = True
-
-        # clear regions to prevent clock/date bleed-through
-        drawn_pixels = []
-        self.clear_clock_region(drawn_pixels)
-        self.clear_date_region(drawn_pixels)
 
         # clear text area for redraw
         for x in range(64):
