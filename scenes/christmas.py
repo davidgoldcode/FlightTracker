@@ -98,6 +98,7 @@ class ChristmasScene(object):
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
         self.clear_clock_region(drawn_pixels)
+        self.clear_date_region(drawn_pixels)
 
         self._twinkle_phase += 0.15
         tree_x = 32

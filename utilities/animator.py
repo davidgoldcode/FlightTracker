@@ -5,6 +5,7 @@ DELAY_DEFAULT = 0.01
 # reserved screen regions that persistent scenes use
 # idle animations must clear these areas before drawing
 CLOCK_REGION_Y = (0, 10)  # clock draws at y=0-8, we clear y=0-10 for safety
+DATE_REGION_Y = (25, 31)  # date draws at y=31, font extends up ~6px
 
 
 class Animator(object):
@@ -40,6 +41,18 @@ class Animator(object):
         """
         cleared = []
         y_start, y_end = CLOCK_REGION_Y
+        for x in range(64):
+            for y in range(y_start, y_end + 1):
+                self.canvas.SetPixel(x, y, 0, 0, 0)
+                cleared.append((x, y))
+        if drawn_pixels is not None:
+            drawn_pixels.extend(cleared)
+        return cleared
+
+    def clear_date_region(self, drawn_pixels=None):
+        """Clear the date region (y=25-31) to prevent overlap with idle animations."""
+        cleared = []
+        y_start, y_end = DATE_REGION_Y
         for x in range(64):
             for y in range(y_start, y_end + 1):
                 self.canvas.SetPixel(x, y, 0, 0, 0)

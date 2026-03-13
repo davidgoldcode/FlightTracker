@@ -136,6 +136,7 @@ class NewYearScene(object):
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
         self.clear_clock_region(drawn_pixels)
+        self.clear_date_region(drawn_pixels)
 
         self._newyear_phase += 0.15
 

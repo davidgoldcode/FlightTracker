@@ -152,6 +152,7 @@ class FireplaceScene(object):
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
         self.clear_clock_region(drawn_pixels)
+        self.clear_date_region(drawn_pixels)
 
         # generate intense heat at bottom (fire source)
         for x in range(FIRE_WIDTH):

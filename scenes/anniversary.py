@@ -130,6 +130,7 @@ class AnniversaryScene(object):
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
         self.clear_clock_region(drawn_pixels)
+        self.clear_date_region(drawn_pixels)
 
         self._heart_phase += 0.1
 

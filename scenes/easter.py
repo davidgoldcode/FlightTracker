@@ -154,6 +154,7 @@ class EasterScene(object):
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
         self.clear_clock_region(drawn_pixels)
+        self.clear_date_region(drawn_pixels)
 
         self._easter_phase += 0.1
         self._bunny_hop += 0.15
