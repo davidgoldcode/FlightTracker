@@ -188,6 +188,19 @@ def grab_current_temperature_openweather(location, apikey, units):
     return current_temp
 
 
+def _is_demo_mode():
+    try:
+        from config import ZONE_HOME
+        return False
+    except (ImportError, NameError):
+        return True
+
+DEMO_MODE = _is_demo_mode()
+
+# demo temperature cycles slowly between values
+DEMO_TEMPERATURES = [72, 68, 55, 42, 38, 42, 55, 68]
+
+
 class WeatherScene(object):
     def __init__(self):
         super().__init__()
@@ -374,6 +387,11 @@ class WeatherScene(object):
                 except WeatherError:
                     continue
 
+            # demo mode fallback: cycle through sample temperatures
+            if self.current_temperature is None and DEMO_MODE:
+                idx = (count // TEMPERATURE_REFRESH_SECONDS) % len(DEMO_TEMPERATURES)
+                self.current_temperature = DEMO_TEMPERATURES[idx]
+
         if self._last_temperature_str is not None:
             # Undraw old temperature
             _ = graphics.DrawText(
@@ -385,7 +403,7 @@ class WeatherScene(object):
                 self._last_temperature_str,
             )
 
-        if self.current_temperature:
+        if self.current_temperature is not None:
             temp_str = f"{round(self.current_temperature)}°".rjust(4, " ")
 
             temp_colour = self.temperature_to_colour(self.current_temperature)
