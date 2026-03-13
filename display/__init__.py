@@ -120,7 +120,7 @@ class Display(
         options.parallel = 1
         options.row_address_type = 0
         options.multiplexing = 0
-        options.pwm_bits = 11
+        options.pwm_bits = 7
         options.brightness = BRIGHTNESS
         options.pwm_lsb_nanoseconds = 130
         options.led_rgb_sequence = LED_RGB_SEQUENCE
@@ -190,8 +190,8 @@ class Display(
                 self.reset_scene()
 
     @Animator.KeyFrame.add(1)
-    def sync(self, count):
-        # Redraw screen every frame
+    def zzzzz_sync(self, count):
+        # zzzzz_ prefix ensures this runs LAST, after all drawing is complete
         _ = self.matrix.SwapOnVSync(self.canvas)
 
     @Animator.KeyFrame.add(frames.PER_SECOND * 30)
