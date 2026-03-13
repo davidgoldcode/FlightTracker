@@ -35,8 +35,8 @@ class Animator(object):
         self._special_winner = None
 
         # quiet-hours ambient cycling (fireplace, starfield, etc.)
-        self._quiet_ambient_candidates_prev = []
-        self._quiet_ambient_candidates_curr = []
+        # uses a persistent set since scenes run at different frame rates
+        self._quiet_ambient_registered = set()
         self._quiet_ambient_winner = None
 
         self._register_keyframes()
@@ -72,13 +72,16 @@ class Animator(object):
         return True
 
     def _resolve_quiet_ambient_cycle(self):
-        """Pick which quiet-hours ambient scene draws this frame."""
-        self._quiet_ambient_candidates_prev = self._quiet_ambient_candidates_curr
-        self._quiet_ambient_candidates_curr = []
-        if self._quiet_ambient_candidates_prev:
+        """Pick which quiet-hours ambient scene draws this frame.
+
+        Uses a persistent set of registered scenes (not per-frame candidates)
+        because quiet-ambient scenes run at different frame rates.
+        """
+        if self._quiet_ambient_registered:
+            candidates = sorted(self._quiet_ambient_registered)
             slot = int(time.time() // QUIET_AMBIENT_CYCLE_SECONDS)
-            idx = slot % len(self._quiet_ambient_candidates_prev)
-            self._quiet_ambient_winner = self._quiet_ambient_candidates_prev[idx]
+            idx = slot % len(candidates)
+            self._quiet_ambient_winner = candidates[idx]
         else:
             self._quiet_ambient_winner = None
 
@@ -87,7 +90,7 @@ class Animator(object):
 
         Returns True if this scene should draw, False otherwise.
         """
-        self._quiet_ambient_candidates_curr.append(scene_name)
+        self._quiet_ambient_registered.add(scene_name)
         if self._quiet_ambient_winner != scene_name:
             return False
         if self._idle_drawn_this_frame:
