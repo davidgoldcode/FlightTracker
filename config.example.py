@@ -116,6 +116,11 @@ QUIET_SCHEDULE = {
     },
 }
 
+# Hide flights during quiet hours (dim period)
+# When True, flight data is ignored during dim hours so only ambient
+# animations show. Flights resume when quiet hours end.
+QUIET_HOURS_HIDE_FLIGHTS = False
+
 # Legacy quiet hours (deprecated, use QUIET_SCHEDULE instead)
 # If QUIET_SCHEDULE is not defined, these values are used as fallback
 QUIET_HOURS_START = "23:00"  # 24-hour format

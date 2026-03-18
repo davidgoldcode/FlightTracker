@@ -3,6 +3,7 @@ import sys
 from setup import frames
 from utilities.animator import Animator
 from utilities.overhead import Overhead
+from utilities.quiethours import should_display_be_dim
 
 from scenes.weather import WeatherScene
 from scenes.flightdetails import FlightDetailsScene
@@ -78,6 +79,11 @@ try:
     from config import LED_RGB_SEQUENCE
 except (ModuleNotFoundError, NameError, ImportError):
     LED_RGB_SEQUENCE = "RGB"
+
+try:
+    from config import QUIET_HOURS_HIDE_FLIGHTS
+except (ModuleNotFoundError, NameError, ImportError):
+    QUIET_HOURS_HIDE_FLIGHTS = False
 
 
 class Display(
@@ -167,6 +173,13 @@ class Display(
 
     @Animator.KeyFrame.add(frames.PER_SECOND * 5)
     def check_for_loaded_data(self, count):
+        # skip flight data during quiet hours if configured
+        if QUIET_HOURS_HIDE_FLIGHTS and should_display_be_dim():
+            if self._data:
+                self._data = []
+                self.reset_scene()
+            return
+
         if self.overhead.new_data:
             # Check if there's data
             there_is_data = len(self._data) > 0 or not self.overhead.data_is_empty
@@ -200,15 +213,10 @@ class Display(
 
     @Animator.KeyFrame.add(frames.PER_SECOND * 30)
     def grab_new_data(self, count):
-        # Only grab data if we're not already searching
-        # for planes, or if there's new data available
-        # which hasn't been displayed.
-        #
-        # We also need wait until all previously grabbed
-        # data has been looped through the display.
-        #
-        # Last, if our internal store of the data
-        # is empty, try and grab data
+        # don't poll for flights during quiet hours if configured
+        if QUIET_HOURS_HIDE_FLIGHTS and should_display_be_dim():
+            return
+
         if not (self.overhead.processing and self.overhead.new_data) and (
             self._data_all_looped or len(self._data) <= 1
         ):
