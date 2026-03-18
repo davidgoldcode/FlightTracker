@@ -1,8 +1,10 @@
 import math
 import random
+import time
 from datetime import datetime
-from utilities.animator import Animator
+from utilities.animator import Animator, IDLE_CYCLE_SECONDS
 from utilities.datenow import get_now
+from utilities.quiethours import should_display_be_dim
 from setup import colours, frames, fonts
 from rgbmatrix import graphics
 
@@ -112,6 +114,8 @@ class BirthdayScene(object):
         self._birthday_name = None
         self._birthday_confetti = [Confetti() for _ in range(30)]
         self._birthday_scroll_x = 64
+        self._birthday_countdown_scroll_x = None
+        self._birthday_countdown_pause = 0
         self._last_birthday_pixels = []
         self._flame_phase = 0
         # for testing scenarios
@@ -159,12 +163,13 @@ class BirthdayScene(object):
         except (ValueError, AttributeError):
             return None
 
-    def _check_birthday_or_countdown(self):
-        """Check if today is someone's birthday OR within countdown range.
+    def _get_all_active_birthdays(self):
+        """Get all active birthdays (today or within countdown range).
 
-        Returns: (name, days_until, is_today) or (None, None, False)
+        Returns: list of (name, days_until, is_today) tuples
         """
         today = get_now().strftime("%m-%d")
+        active = []
 
         for name, date_val in BIRTHDAYS.items():
             date, countdown_days = self._get_birthday_info(name, date_val)
@@ -174,15 +179,16 @@ class BirthdayScene(object):
 
             # check if today is the birthday
             if date == today:
-                return (name, 0, True)
+                active.append((name, 0, True))
+                continue
 
             # check countdown (only for OTHER_BIRTHDAYS, not Me/Partner)
             if name not in ("Me", "Partner") and countdown_days > 0:
                 days = self._get_days_until(date)
                 if days is not None and 0 < days <= countdown_days:
-                    return (name, days, False)
+                    active.append((name, days, False))
 
-        return (None, None, False)
+        return active
 
     @Animator.KeyFrame.add(1)
     def birthday(self, count):
@@ -199,12 +205,12 @@ class BirthdayScene(object):
             demo_name = self._scenario_name or "Mom"
             if self._scenario_days is not None:
                 if self._scenario_days == 0:
-                    name, days, is_today = demo_name, 0, True
+                    active = [(demo_name, 0, True)]
                 else:
-                    name, days, is_today = demo_name, self._scenario_days, False
+                    active = [(demo_name, self._scenario_days, False)]
             else:
                 demo_name = self._scenario_name or "Jane Doe"
-                name, days, is_today = demo_name, 3, False
+                active = [(demo_name, 3, False)]
         else:
             # yield to ambient scenes during quiet hours
             if should_display_be_dim():
@@ -225,7 +231,10 @@ class BirthdayScene(object):
                     self.canvas.SetPixel(px, py, 0, 0, 0)
                 self._last_birthday_pixels = []
             return
-        self._idle_drawn_this_frame = True
+
+        # cycle between multiple active birthdays
+        slot = int(time.time() // IDLE_CYCLE_SECONDS)
+        name, days, is_today = active[slot % len(active)]
 
         drawn_pixels = []
 
@@ -247,6 +256,7 @@ class BirthdayScene(object):
     def _draw_celebration(self, drawn_pixels, name):
         """Draw full birthday celebration with cake and confetti."""
         self.clear_clock_region(drawn_pixels)
+        self.clear_date_region(drawn_pixels)
 
         # draw cake (bottom left)
         cake_x = 4
@@ -304,6 +314,7 @@ class BirthdayScene(object):
     def _draw_countdown(self, drawn_pixels, name, days):
         """Draw birthday countdown display."""
         self.clear_clock_region(drawn_pixels)
+        self.clear_date_region(drawn_pixels)
 
         # draw small cake icon (top right corner)
         cake_x = 52
@@ -330,10 +341,35 @@ class BirthdayScene(object):
             for y in range(6, 14):
                 drawn_pixels.append((x, y))
 
-        # line 2: "Name's bday"
+        # line 2: "Name's bday" - scroll if too wide for display
         line2 = f"{name}'s bday"
         line2_color = graphics.Color(255, 200, 100)
-        graphics.DrawText(self.canvas, fonts.extrasmall, 2, 24, line2_color, line2)
-        for x in range(2, min(64, 2 + len(line2) * 5)):
+        line2_width = len(line2) * 5
+        max_width = 60  # 64px minus 2px margin on each side
+
+        if line2_width <= max_width:
+            # fits on screen, draw static
+            graphics.DrawText(self.canvas, fonts.extrasmall, 2, 24, line2_color, line2)
+        else:
+            # too wide, scroll with pause at start
+            if self._birthday_countdown_scroll_x is None:
+                self._birthday_countdown_scroll_x = 2
+                self._birthday_countdown_pause = 30  # ~3 seconds pause at start
+
+            if self._birthday_countdown_pause > 0:
+                self._birthday_countdown_pause -= 1
+                graphics.DrawText(self.canvas, fonts.extrasmall, 2, 24, line2_color, line2)
+            else:
+                graphics.DrawText(
+                    self.canvas, fonts.extrasmall,
+                    int(self._birthday_countdown_scroll_x), 24,
+                    line2_color, line2
+                )
+                self._birthday_countdown_scroll_x -= 0.5
+                # reset when fully scrolled off
+                if self._birthday_countdown_scroll_x < -line2_width:
+                    self._birthday_countdown_scroll_x = None
+
+        for x in range(64):
             for y in range(18, 26):
                 drawn_pixels.append((x, y))

@@ -1,5 +1,6 @@
 import math
 from utilities.animator import Animator
+from utilities.quiethours import should_display_be_dim
 from setup import frames
 
 
@@ -58,13 +59,15 @@ class OceanWavesScene(object):
                     self.canvas.SetPixel(px, py, 0, 0, 0)
                 self._last_wave_pixels = []
             return
-        self._idle_drawn_this_frame = True
 
         drawn_pixels = []
 
         # clear previous positions
         for px, py in self._last_wave_pixels:
             self.canvas.SetPixel(px, py, 0, 0, 0)
+
+        self.clear_clock_region(drawn_pixels)
+        self.clear_date_region(drawn_pixels)
 
         self._wave_phase += WAVE_SPEED
 

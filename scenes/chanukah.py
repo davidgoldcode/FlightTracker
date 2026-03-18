@@ -174,7 +174,6 @@ class ChanukahScene(object):
                     self.canvas.SetPixel(px, py, 0, 0, 0)
                 self._last_chanukah_pixels = []
             return
-        self._idle_drawn_this_frame = True
 
         drawn_pixels = []
 
@@ -183,6 +182,7 @@ class ChanukahScene(object):
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
         self.clear_clock_region(drawn_pixels)
+        self.clear_date_region(drawn_pixels)
 
         self._flame_phase += 0.15
 

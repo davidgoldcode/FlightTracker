@@ -127,7 +127,6 @@ class NewYearScene(object):
                     self.canvas.SetPixel(px, py, 0, 0, 0)
                 self._last_newyear_pixels = []
             return
-        self._idle_drawn_this_frame = True
 
         countdown = self._get_countdown()
         if countdown is None and not DEMO_MODE:
@@ -140,6 +139,7 @@ class NewYearScene(object):
             self.canvas.SetPixel(px, py, 0, 0, 0)
 
         self.clear_clock_region(drawn_pixels)
+        self.clear_date_region(drawn_pixels)
 
         self._newyear_phase += 0.15
 
