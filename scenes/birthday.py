@@ -14,7 +14,16 @@ DEFAULT_COUNTDOWN_DAYS = 3
 def _load_birthday_config():
     try:
         from config import MY_BIRTHDAY, PARTNER_BIRTHDAY
-        birthdays = {"Me": MY_BIRTHDAY, "Partner": PARTNER_BIRTHDAY}
+        # use configured names, fall back to generic labels
+        try:
+            from config import MY_NAME
+        except (ImportError, NameError):
+            MY_NAME = "Me"
+        try:
+            from config import PARTNER_NAME
+        except (ImportError, NameError):
+            PARTNER_NAME = "Partner"
+        birthdays = {MY_NAME: MY_BIRTHDAY, PARTNER_NAME: PARTNER_BIRTHDAY}
     except (ImportError, NameError):
         birthdays = {}
 
