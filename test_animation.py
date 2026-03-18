@@ -103,6 +103,8 @@ ANIMATIONS = {
     'fallingsnow': 'scenes.fallingsnow.FallingSnowScene',
     'aurora': 'scenes.aurora.AuroraScene',
     'fireplace': 'scenes.fireplace.FireplaceScene',
+    'candlelight': 'scenes.candlelight.CandlelightScene',
+    'moonrise': 'scenes.moonrise.MoonriseScene',
     'rain': 'scenes.rain.RainScene',
     'birthday': 'scenes.birthday.BirthdayScene',
     'anniversary': 'scenes.anniversary.AnniversaryScene',
@@ -225,6 +227,16 @@ def main():
             if animation_name in NAME_ANIMATIONS and name_arg:
                 self._scenario_name = name_arg
 
+        def _register_special_occasion(self, scene_name):
+            """In test mode, always let the scene draw."""
+            self._idle_drawn_this_frame = True
+            return True
+
+        def _register_quiet_ambient(self, scene_name):
+            """In test mode, always let the scene draw."""
+            self._idle_drawn_this_frame = True
+            return True
+
         def _apply_scenario(self, stype, svalue):
             """Apply scenario to the display."""
             if stype == 'day-of':
@@ -237,7 +249,7 @@ def main():
                     self._scenario_days = svalue
 
         @Animator.KeyFrame.add(1)
-        def sync(self, count):
+        def zzz_sync(self, count):
             self.matrix.SwapOnVSync(self.canvas)
 
         def run(self):
