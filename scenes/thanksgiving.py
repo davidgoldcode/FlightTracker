@@ -128,6 +128,10 @@ class ThanksgivingScene(object):
 
         # special occasion cycling (rotates with birthdays)
         if not self._register_special_occasion('thanksgiving'):
+            if self._last_thanksgiving_pixels:
+                for px, py in self._last_thanksgiving_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_thanksgiving_pixels = []
             return
 
         drawn_pixels = []

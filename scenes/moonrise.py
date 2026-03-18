@@ -91,6 +91,10 @@ class MoonriseScene(object):
 
         # quiet-hours ambient cycling
         if not self._register_quiet_ambient('moonrise'):
+            if self._last_moon_pixels:
+                for px, py in self._last_moon_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_moon_pixels = []
             return
 
         drawn_pixels = []

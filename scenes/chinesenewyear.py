@@ -189,6 +189,10 @@ class ChineseNewYearScene(object):
 
         # special occasion cycling (rotates with birthdays)
         if not self._register_special_occasion('chinese_new_year'):
+            if self._last_cny_pixels:
+                for px, py in self._last_cny_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_cny_pixels = []
             return
 
         drawn_pixels = []

@@ -139,6 +139,10 @@ class FireplaceScene(object):
 
         # quiet-hours ambient cycling
         if not self._register_quiet_ambient('fireplace'):
+            if self._last_fire_pixels:
+                for px, py in self._last_fire_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_fire_pixels = []
             return
 
         if not self._fire_initialized:

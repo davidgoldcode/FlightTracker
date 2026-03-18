@@ -88,6 +88,10 @@ class StarfieldScene(object):
 
         # quiet-hours ambient cycling
         if not self._register_quiet_ambient('starfield'):
+            if self._last_star_pixels:
+                for px, py in self._last_star_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_star_pixels = []
             return
 
         # initialize stars on first run

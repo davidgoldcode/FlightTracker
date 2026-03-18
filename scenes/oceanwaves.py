@@ -50,6 +50,10 @@ class OceanWavesScene(object):
 
         # quiet-hours ambient cycling
         if not self._register_quiet_ambient('oceanwaves'):
+            if self._last_wave_pixels:
+                for px, py in self._last_wave_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_wave_pixels = []
             return
 
         drawn_pixels = []

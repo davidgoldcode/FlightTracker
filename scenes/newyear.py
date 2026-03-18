@@ -122,6 +122,10 @@ class NewYearScene(object):
 
         # special occasion cycling (rotates with birthdays)
         if not self._register_special_occasion('newyear'):
+            if self._last_newyear_pixels:
+                for px, py in self._last_newyear_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_newyear_pixels = []
             return
 
         countdown = self._get_countdown()

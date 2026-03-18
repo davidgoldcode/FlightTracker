@@ -60,6 +60,10 @@ class CandlelightScene(object):
 
         # quiet-hours ambient cycling
         if not self._register_quiet_ambient('candlelight'):
+            if self._last_candle_pixels:
+                for px, py in self._last_candle_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_candle_pixels = []
             return
 
         drawn_pixels = []

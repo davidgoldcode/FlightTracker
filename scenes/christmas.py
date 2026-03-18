@@ -89,6 +89,10 @@ class ChristmasScene(object):
 
         # special occasion cycling (rotates with birthdays)
         if not self._register_special_occasion('christmas'):
+            if self._last_christmas_pixels:
+                for px, py in self._last_christmas_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_christmas_pixels = []
             return
 
         drawn_pixels = []

@@ -222,6 +222,10 @@ class BirthdayScene(object):
 
         # special occasion cycling (rotates with holidays)
         if not self._register_special_occasion('birthday'):
+            if self._last_birthday_pixels:
+                for px, py in self._last_birthday_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_birthday_pixels = []
             return
 
         # cycle between multiple active birthdays

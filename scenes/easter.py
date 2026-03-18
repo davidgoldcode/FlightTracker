@@ -145,6 +145,10 @@ class EasterScene(object):
 
         # special occasion cycling (rotates with birthdays)
         if not self._register_special_occasion('easter'):
+            if self._last_easter_pixels:
+                for px, py in self._last_easter_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_easter_pixels = []
             return
 
         drawn_pixels = []
