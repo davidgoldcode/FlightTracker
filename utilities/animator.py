@@ -1,9 +1,9 @@
+import random
 import time
 from time import sleep
 
 DELAY_DEFAULT = 0.01
 IDLE_CYCLE_SECONDS = 10  # rotate between special occasion scenes
-QUIET_AMBIENT_CYCLE_SECONDS = 300  # rotate quiet-hours ambient scenes every 5 minutes
 
 # reserved screen regions that persistent scenes use
 # idle animations must clear these areas before drawing
@@ -34,10 +34,10 @@ class Animator(object):
         self._special_candidates_curr = []
         self._special_winner = None
 
-        # quiet-hours ambient cycling (fireplace, starfield, etc.)
-        # uses a persistent set since scenes run at different frame rates
+        # quiet-hours ambient (one random scene per quiet period)
         self._quiet_ambient_registered = set()
         self._quiet_ambient_winner = None
+        self._quiet_ambient_locked = False
 
         self._register_keyframes()
 
@@ -72,18 +72,21 @@ class Animator(object):
         return True
 
     def _resolve_quiet_ambient_cycle(self):
-        """Pick which quiet-hours ambient scene draws this frame.
+        """Pick one random ambient scene for the entire quiet period.
 
-        Uses a persistent set of registered scenes (not per-frame candidates)
-        because quiet-ambient scenes run at different frame rates.
+        Once a winner is locked, it stays until quiet hours end (no scenes
+        register) and a new quiet period begins.
         """
         if self._quiet_ambient_registered:
-            candidates = sorted(self._quiet_ambient_registered)
-            slot = int(time.time() // QUIET_AMBIENT_CYCLE_SECONDS)
-            idx = slot % len(candidates)
-            self._quiet_ambient_winner = candidates[idx]
+            if not self._quiet_ambient_locked:
+                # new quiet period: pick a random scene
+                candidates = sorted(self._quiet_ambient_registered)
+                self._quiet_ambient_winner = random.choice(candidates)
+                self._quiet_ambient_locked = True
         else:
+            # no scenes registered (quiet hours ended): reset for next time
             self._quiet_ambient_winner = None
+            self._quiet_ambient_locked = False
 
     def _register_quiet_ambient(self, scene_name):
         """Register as a quiet-hours ambient candidate and check if it's our turn.

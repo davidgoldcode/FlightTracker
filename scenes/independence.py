@@ -2,6 +2,7 @@ import math
 import random
 from utilities.animator import Animator
 from utilities.datenow import get_now
+from utilities.quiethours import should_display_be_dim
 from setup import colours, frames, fonts
 from rgbmatrix import graphics
 
@@ -94,6 +95,13 @@ class IndependenceScene(object):
             return
 
         if not self._is_independence_day():
+            return
+
+        if not DEMO_MODE and should_display_be_dim():
+            if self._last_independence_pixels:
+                for px, py in self._last_independence_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_independence_pixels = []
             return
 
         # special occasion cycling (rotates with birthdays)

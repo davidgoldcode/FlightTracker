@@ -2,6 +2,7 @@ import math
 import random
 from datetime import datetime, date
 from utilities.animator import Animator
+from utilities.quiethours import should_display_be_dim
 from setup import colours, frames, fonts
 from rgbmatrix import graphics
 
@@ -124,6 +125,13 @@ class ThanksgivingScene(object):
             return
 
         if not self._is_thanksgiving():
+            return
+
+        if not DEMO_MODE and should_display_be_dim():
+            if self._last_thanksgiving_pixels:
+                for px, py in self._last_thanksgiving_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_thanksgiving_pixels = []
             return
 
         # special occasion cycling (rotates with birthdays)
