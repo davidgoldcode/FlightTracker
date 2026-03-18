@@ -163,10 +163,10 @@ class NewYearScene(object):
             # "Happy New Year" text at top
             msg = "NEW YEAR"
             msg_color = graphics.Color(100, 100, 255)
-            mx = (64 - len(msg) * 4) // 2
-            graphics.DrawText(self.canvas, fonts.extrasmall, mx, 7, msg_color, msg)
-            for tx in range(mx, min(64, mx + len(msg) * 5)):
-                for ty in range(1, 9):
+            mx = (64 - len(msg) * 6) // 2
+            graphics.DrawText(self.canvas, fonts.small, mx, 8, msg_color, msg)
+            for tx in range(max(0, mx), min(64, mx + len(msg) * 6)):
+                for ty in range(1, 10):
                     drawn_pixels.append((tx, ty))
 
         else:

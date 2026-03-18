@@ -130,29 +130,52 @@ class ChanukahScene(object):
             drawn_pixels.append((cx - 1, stem_top))
             drawn_pixels.append((cx + 1, stem_top))
 
-            # draw candle (blue/white alternating)
-            candle_color = blue if idx % 2 == 0 else white
+            # draw candle (lit candles are brighter)
+            is_lit = idx in lit_candles
             candle_top = stem_top - candle_height
+
+            if is_lit:
+                candle_color = blue if idx % 2 == 0 else white
+            else:
+                # unlit candles are dim/dark
+                candle_color = (30, 40, 80) if idx % 2 == 0 else (60, 60, 70)
+
             for y in range(stem_top - 1, candle_top, -1):
                 self.canvas.SetPixel(cx, y, *candle_color)
                 drawn_pixels.append((cx, y))
 
-            # draw flame if lit
-            if idx in lit_candles:
+            # draw flame and glow if lit
+            if is_lit:
                 flame_y = candle_top
                 flicker = 0.6 + 0.4 * math.sin(self._flame_phase + idx * 0.7)
 
-                # flame core (yellow-white)
+                # flame core (bright yellow-white)
                 fr = int(255 * flicker)
                 fg = int(220 * flicker)
                 fb = int(100 * flicker)
                 self.canvas.SetPixel(cx, flame_y, fr, fg, fb)
                 drawn_pixels.append((cx, flame_y))
 
-                # flame tip (orange glow)
+                # flame tip (orange)
                 if flame_y - 1 >= 0:
-                    self.canvas.SetPixel(cx, flame_y - 1, int(255 * flicker * 0.6), int(150 * flicker * 0.6), 0)
+                    self.canvas.SetPixel(cx, flame_y - 1, int(255 * flicker * 0.7), int(150 * flicker * 0.7), 0)
                     drawn_pixels.append((cx, flame_y - 1))
+
+                # warm glow around flame (2px radius)
+                for dx in range(-2, 3):
+                    for dy in range(-2, 3):
+                        gx = cx + dx
+                        gy = flame_y + dy
+                        if 0 <= gx < 64 and 0 <= gy < 32 and (dx != 0 or dy != 0):
+                            dist = math.sqrt(dx * dx + dy * dy)
+                            if dist <= 2.5:
+                                glow = flicker * (1 - dist / 3) * 0.3
+                                gr = int(255 * glow)
+                                gg = int(150 * glow)
+                                gb = int(30 * glow)
+                                if gr > 0:
+                                    self.canvas.SetPixel(gx, gy, gr, gg, gb)
+                                    drawn_pixels.append((gx, gy))
 
     @Animator.KeyFrame.add(1)
     def chanukah(self, count):
