@@ -87,6 +87,10 @@ class MoonriseScene(object):
 
         # only show during quiet hours or demo mode
         if not DEMO_MODE and not should_display_be_dim():
+            if self._last_moon_pixels:
+                for px, py in self._last_moon_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_moon_pixels = []
             return
 
         # quiet-hours ambient cycling
