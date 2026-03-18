@@ -120,8 +120,12 @@ class NewYearScene(object):
         if not self._is_new_years_eve():
             return
 
-        # mutual exclusion - only one idle animation per frame
-        if self._idle_drawn_this_frame:
+        # special occasion cycling (rotates with birthdays)
+        if not self._register_special_occasion('newyear'):
+            if self._last_newyear_pixels:
+                for px, py in self._last_newyear_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_newyear_pixels = []
             return
         self._idle_drawn_this_frame = True
 

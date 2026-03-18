@@ -82,8 +82,12 @@ class StPatricksScene(object):
         if not self._is_st_patricks():
             return
 
-        # mutual exclusion - only one idle animation per frame
-        if self._idle_drawn_this_frame:
+        # special occasion cycling (rotates with birthdays)
+        if not self._register_special_occasion('stpatricks'):
+            if self._last_stpatricks_pixels:
+                for px, py in self._last_stpatricks_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_stpatricks_pixels = []
             return
         self._idle_drawn_this_frame = True
 

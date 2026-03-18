@@ -43,12 +43,20 @@ class OceanWavesScene(object):
                 self._last_wave_pixels = []
             return
 
-        # only show in demo/test mode
-        if not DEMO_MODE:
+        # only show during quiet hours or demo mode
+        if not DEMO_MODE and not should_display_be_dim():
+            if self._last_wave_pixels:
+                for px, py in self._last_wave_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_wave_pixels = []
             return
 
-        # mutual exclusion - only one idle animation per frame
-        if self._idle_drawn_this_frame:
+        # quiet-hours ambient cycling
+        if not self._register_quiet_ambient('oceanwaves'):
+            if self._last_wave_pixels:
+                for px, py in self._last_wave_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_wave_pixels = []
             return
         self._idle_drawn_this_frame = True
 

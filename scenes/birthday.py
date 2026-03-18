@@ -206,12 +206,24 @@ class BirthdayScene(object):
                 demo_name = self._scenario_name or "Jane Doe"
                 name, days, is_today = demo_name, 3, False
         else:
-            name, days, is_today = self._check_birthday_or_countdown()
-            if name is None:
+            # yield to ambient scenes during quiet hours
+            if should_display_be_dim():
+                if self._last_birthday_pixels:
+                    for px, py in self._last_birthday_pixels:
+                        self.canvas.SetPixel(px, py, 0, 0, 0)
+                    self._last_birthday_pixels = []
                 return
 
-        # mutual exclusion - only one idle animation per frame
-        if self._idle_drawn_this_frame:
+            active = self._get_all_active_birthdays()
+            if not active:
+                return
+
+        # special occasion cycling (rotates with holidays)
+        if not self._register_special_occasion('birthday'):
+            if self._last_birthday_pixels:
+                for px, py in self._last_birthday_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_birthday_pixels = []
             return
         self._idle_drawn_this_frame = True
 

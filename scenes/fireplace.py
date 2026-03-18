@@ -137,8 +137,12 @@ class FireplaceScene(object):
                 self._last_fire_pixels = []
             return
 
-        # mutual exclusion - only one idle animation per frame
-        if self._idle_drawn_this_frame:
+        # quiet-hours ambient cycling
+        if not self._register_quiet_ambient('fireplace'):
+            if self._last_fire_pixels:
+                for px, py in self._last_fire_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_fire_pixels = []
             return
         self._idle_drawn_this_frame = True
 

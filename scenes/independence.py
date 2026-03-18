@@ -96,8 +96,12 @@ class IndependenceScene(object):
         if not self._is_independence_day():
             return
 
-        # mutual exclusion - only one idle animation per frame
-        if self._idle_drawn_this_frame:
+        # special occasion cycling (rotates with birthdays)
+        if not self._register_special_occasion('independence'):
+            if self._last_independence_pixels:
+                for px, py in self._last_independence_pixels:
+                    self.canvas.SetPixel(px, py, 0, 0, 0)
+                self._last_independence_pixels = []
             return
         self._idle_drawn_this_frame = True
 
