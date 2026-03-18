@@ -62,7 +62,9 @@ OPENWEATHER_API_KEY = ""
 # =============================================================================
 
 MY_BIRTHDAY = "01-01"
+MY_NAME = "John"
 PARTNER_BIRTHDAY = "01-01"
+PARTNER_NAME = "Jane"
 ANNIVERSARY = "01-01"
 
 # OTHER_BIRTHDAYS supports two formats:
