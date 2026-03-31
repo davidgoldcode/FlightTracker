@@ -76,7 +76,7 @@ class MoonriseScene(object):
         y = 20 - int((1 - normalized * normalized) * 16)  # peaks at y=4
         return x, y
 
-    @Animator.KeyFrame.add(2)
+    @Animator.KeyFrame.add(1)
     def moonrise(self, count):
         if len(self._data):
             if self._last_moon_pixels:

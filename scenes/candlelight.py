@@ -45,7 +45,7 @@ class CandlelightScene(object):
         self._candle_sway_phase = random.uniform(0, 2 * math.pi)
         self._last_candle_pixels = []
 
-    @Animator.KeyFrame.add(2)
+    @Animator.KeyFrame.add(1)
     def candlelight(self, count):
         if len(self._data):
             if self._last_candle_pixels:

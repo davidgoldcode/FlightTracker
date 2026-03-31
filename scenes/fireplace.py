@@ -91,6 +91,7 @@ class FireplaceScene(object):
         self._fire_grid = []
         self._fire_initialized = False
         self._last_fire_pixels = []
+        self._fire_frame = 0
 
     def _init_fire(self):
         # create cooling map
@@ -111,7 +112,7 @@ class FireplaceScene(object):
         factor = intensity / 255
         return (int(r * factor), int(g * factor), int(b * factor))
 
-    @Animator.KeyFrame.add(4)
+    @Animator.KeyFrame.add(1)
     def fireplace(self, count):
         # only show when no flights overhead
         if len(self._data):
@@ -157,6 +158,37 @@ class FireplaceScene(object):
         self.clear_clock_region(drawn_pixels)
         self.clear_date_region(drawn_pixels)
 
+        # update fire simulation every 4th frame (slower animation)
+        self._fire_frame += 1
+        if self._fire_frame % 4 != 0:
+            # skip simulation update, just redraw from existing grid
+            pass
+        else:
+            self._update_fire_sim()
+
+        # draw fire
+        for y in range(FIRE_HEIGHT):
+            for x in range(FIRE_WIDTH):
+                intensity = self._fire_grid[y][x]
+                if intensity > 10:
+                    px = FIRE_X_OFFSET + x
+                    py = FIRE_Y_OFFSET + y
+                    if 0 <= px < 64 and 0 <= py < 32:
+                        r, g, b = self._get_fire_color(intensity)
+                        self.canvas.SetPixel(px, py, r, g, b)
+                        drawn_pixels.append((px, py))
+
+        # draw log/base
+        for x in range(FIRE_WIDTH - 4):
+            px = FIRE_X_OFFSET + x + 2
+            py = 31
+            self.canvas.SetPixel(px, py, 60, 30, 10)
+            drawn_pixels.append((px, py))
+
+        self._last_fire_pixels = drawn_pixels
+
+    def _update_fire_sim(self):
+        """Update fire simulation grid."""
         # generate intense heat at bottom (fire source)
         for x in range(FIRE_WIDTH):
             # center burns hotter
@@ -197,24 +229,3 @@ class FireplaceScene(object):
                     avg += random.randint(-20, 30)
 
                 self._fire_grid[y][x] = max(0, min(255, avg - cooling))
-
-        # draw fire
-        for y in range(FIRE_HEIGHT):
-            for x in range(FIRE_WIDTH):
-                intensity = self._fire_grid[y][x]
-                if intensity > 10:  # skip very dark pixels
-                    px = FIRE_X_OFFSET + x
-                    py = FIRE_Y_OFFSET + y
-                    if 0 <= px < 64 and 0 <= py < 32:
-                        r, g, b = self._get_fire_color(intensity)
-                        self.canvas.SetPixel(px, py, r, g, b)
-                        drawn_pixels.append((px, py))
-
-        # draw log/base
-        for x in range(FIRE_WIDTH - 4):
-            px = FIRE_X_OFFSET + x + 2
-            py = 31
-            self.canvas.SetPixel(px, py, 60, 30, 10)
-            drawn_pixels.append((px, py))
-
-        self._last_fire_pixels = drawn_pixels

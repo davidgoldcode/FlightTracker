@@ -36,6 +36,7 @@ class Animator(object):
 
         # quiet-hours ambient (one random scene per quiet period)
         self._quiet_ambient_registered = set()
+        self._quiet_ambient_candidates = set()
         self._quiet_ambient_winner = None
         self._quiet_ambient_locked = False
 
@@ -75,16 +76,19 @@ class Animator(object):
         """Pick one random ambient scene for the entire quiet period.
 
         Once a winner is locked, it stays until quiet hours end (no scenes
-        register) and a new quiet period begins.
+        register for a frame) and a new quiet period begins.
+        Scenes re-register every frame via _register_quiet_ambient.
         """
-        if self._quiet_ambient_registered:
+        if self._quiet_ambient_candidates:
             if not self._quiet_ambient_locked:
                 # new quiet period: pick a random scene
-                candidates = sorted(self._quiet_ambient_registered)
+                candidates = sorted(self._quiet_ambient_candidates)
                 self._quiet_ambient_winner = random.choice(candidates)
                 self._quiet_ambient_locked = True
+            # reset candidates for next frame (scenes re-register each frame)
+            self._quiet_ambient_candidates = set()
         else:
-            # no scenes registered (quiet hours ended): reset for next time
+            # no scenes registered this frame (quiet hours ended): reset
             self._quiet_ambient_winner = None
             self._quiet_ambient_locked = False
 
@@ -94,6 +98,7 @@ class Animator(object):
         Returns True if this scene should draw, False otherwise.
         """
         self._quiet_ambient_registered.add(scene_name)
+        self._quiet_ambient_candidates.add(scene_name)
         if self._quiet_ambient_winner != scene_name:
             return False
         if self._idle_drawn_this_frame:

@@ -184,6 +184,8 @@ class LoveMessagesScene(object):
 
         # claim the frame (prevents heartbeat from drawing)
         if self._idle_drawn_this_frame:
+            # another scene won the mutex, clean up our pixels
+            self._deactivate()
             return
         self._idle_drawn_this_frame = True
 
