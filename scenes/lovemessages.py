@@ -3,6 +3,7 @@ import random
 import time
 
 from utilities.animator import Animator
+from utilities.quiethours import should_display_be_dim
 from setup import colours, frames, fonts
 from rgbmatrix import graphics
 
@@ -164,6 +165,12 @@ class LoveMessagesScene(object):
     def heart_and_message(self, count):
         # flights take priority
         if len(self._data):
+            if self._msg_active:
+                self._deactivate()
+            return
+
+        # yield during quiet hours
+        if not DEMO_MODE and should_display_be_dim():
             if self._msg_active:
                 self._deactivate()
             return
