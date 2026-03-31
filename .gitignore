@@ -146,3 +146,6 @@ cython_debug/
 # local dev files
 config.py
 emulator_config.json
+_pixel_bridge.bin
+_pixel_bridge.tmp
+_viewer_config.py
