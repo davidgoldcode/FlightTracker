@@ -85,7 +85,7 @@ class FakeConfigModule:
                 with open(overlay) as f:
                     for line in f:
                         if line.startswith("DEBUG_DATE"):
-                            val = line.split("=", 1)[1].strip().strip('"').strip("'")
+                            val = line.split("=", 1)[1].split("#")[0].strip().strip('"').strip("'")
                             if val:
                                 return val
         raise ImportError("Demo mode - no config")
