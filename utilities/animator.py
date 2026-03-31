@@ -35,7 +35,6 @@ class Animator(object):
         self._special_winner = None
 
         # quiet-hours ambient (one random scene per quiet period)
-        self._quiet_ambient_registered = set()
         self._quiet_ambient_candidates = set()
         self._quiet_ambient_winner = None
         self._quiet_ambient_locked = False
@@ -97,7 +96,6 @@ class Animator(object):
 
         Returns True if this scene should draw, False otherwise.
         """
-        self._quiet_ambient_registered.add(scene_name)
         self._quiet_ambient_candidates.add(scene_name)
         if self._quiet_ambient_winner != scene_name:
             return False
