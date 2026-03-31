@@ -26,6 +26,7 @@ Examples:
     python test_animation.py anniversary --scenario=countdown:5
     python test_animation.py heartbeat --brightness=30
 """
+import os
 import sys
 
 # parse optional args before other imports
@@ -58,6 +59,11 @@ try:
     sys.modules['rgbmatrix'].RGBMatrixOptions = RGBMatrixOptions
     sys.modules['rgbmatrix'].graphics = graphics
     USE_EMULATOR = True
+
+    # pixel capture for LED viewer
+    if os.environ.get("LED_VIEWER"):
+        from _pixel_capture import patch_emulator
+        patch_emulator()
 except ImportError:
     # on Pi, use real hardware
     from rgbmatrix import RGBMatrix, RGBMatrixOptions, graphics
@@ -69,8 +75,19 @@ if 'config' in sys.modules:
     del sys.modules['config']
 
 # create a fake config that raises ImportError to trigger demo mode
+# but allows DEBUG_DATE from viewer's config overlay
 class FakeConfigModule:
     def __getattr__(self, name):
+        # check viewer config overlay for DEBUG_DATE
+        if name == "DEBUG_DATE":
+            overlay = os.path.join(os.path.dirname(__file__) or ".", "_viewer_config.py")
+            if os.path.exists(overlay):
+                with open(overlay) as f:
+                    for line in f:
+                        if line.startswith("DEBUG_DATE"):
+                            val = line.split("=", 1)[1].strip().strip('"').strip("'")
+                            if val:
+                                return val
         raise ImportError("Demo mode - no config")
 
 sys.modules['config'] = FakeConfigModule()
